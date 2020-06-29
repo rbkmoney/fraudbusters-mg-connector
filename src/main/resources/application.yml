@@ -20,3 +20,15 @@ spring:
 info:
   version: '@project.version@'
   stage: dev
+
+service:
+  invoicing:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
+
+kafka:
+  topic:
+    mg-event: mg-event
+    payment: payment
+    refund: refund
+    chargeback: chargeback
