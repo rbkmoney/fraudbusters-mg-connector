@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbustersmgconnector;
+package com.rbkmoney.fraudbusters.mg.connector;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

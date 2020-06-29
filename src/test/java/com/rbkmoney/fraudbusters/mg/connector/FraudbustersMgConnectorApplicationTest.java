@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbustersmgconnector;
+package com.rbkmoney.fraudbusters.mg.connector;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,6 +11,6 @@ public class FraudbustersMgConnectorApplicationTest {
 
     @Test
     public void contextLoads() {
-
+        
     }
 }
