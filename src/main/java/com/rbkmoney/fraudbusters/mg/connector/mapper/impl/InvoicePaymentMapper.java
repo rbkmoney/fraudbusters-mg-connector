@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.mg.connector.mapper;
+package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
 import com.rbkmoney.damsel.domain.Failure;
 import com.rbkmoney.damsel.domain.OperationFailure;
@@ -8,6 +8,7 @@ import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.geck.serializer.kit.tbase.TErrorUtil;
