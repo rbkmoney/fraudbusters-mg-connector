@@ -46,11 +46,6 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
 
         Payer payer = invoicePayment.getPayment().getPayer();
 
-        var paymentChargeback = invoicePayment.getChargebacks().stream()
-                .filter(chargeback -> chargeback.getChargeback().getId().equals(chargebackId))
-                .findFirst()
-                .get().getChargeback();
-
         Chargeback chargeback = new Chargeback()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentChargebackStatusChanged.getStatus(), ChargebackStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
@@ -60,10 +55,17 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
                 .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
-                .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
-                .setChargebackCode(paymentChargeback.getReason().getCode() != null ?
-                        paymentChargeback.getReason().getCode() : GeneralInfoInitiator.UNKNOWN)
-                .setCategory(TBaseUtil.unionFieldToEnum(paymentChargeback.getReason().getCategory(), ChargebackCategory.class));
+                .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment));
+
+        invoicePayment.getChargebacks().stream()
+                .filter(chargebackVal -> chargebackVal.getChargeback().getId().equals(chargebackId))
+                .findFirst()
+                .ifPresent(paymentChargeback -> {
+                    com.rbkmoney.damsel.domain.InvoicePaymentChargeback invoicePaymentChargeback = paymentChargeback.getChargeback();
+                    chargeback.setChargebackCode(invoicePaymentChargeback.getReason().getCode() != null ?
+                            invoicePaymentChargeback.getReason().getCode() : GeneralInfoInitiator.UNKNOWN)
+                            .setCategory(TBaseUtil.unionFieldToEnum(invoicePaymentChargeback.getReason().getCategory(), ChargebackCategory.class));
+                });
 
         log.debug("ChargebackPaymentMapper chargebackRow: {}", chargeback);
         return chargeback;
