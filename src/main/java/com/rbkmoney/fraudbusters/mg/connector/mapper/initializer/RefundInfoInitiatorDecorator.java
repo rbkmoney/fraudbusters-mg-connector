@@ -1,9 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.initializer;
 
-import com.rbkmoney.damsel.domain.Failure;
-import com.rbkmoney.damsel.domain.Invoice;
-import com.rbkmoney.damsel.domain.OperationFailure;
-import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.Error;
 import com.rbkmoney.damsel.fraudbusters.ProviderInfo;
@@ -27,8 +24,9 @@ public class RefundInfoInitiatorDecorator implements InfoInitializer<InvoicePaym
 
     @Override
     public Error initError(InvoicePaymentRefundStatusChanged refundStatusChanged) {
-        Error error = new Error();
+        Error error = null;
         if (refundStatusChanged.getStatus().isSetFailed()) {
+            error = new Error();
             OperationFailure operationFailure = refundStatusChanged.getStatus().getFailed().getFailure();
             if (operationFailure.isSetFailure()) {
                 Failure failure = operationFailure.getFailure();
@@ -36,6 +34,8 @@ public class RefundInfoInitiatorDecorator implements InfoInitializer<InvoicePaym
                         .setErrorReason(failure.getReason());
             } else if (refundStatusChanged.getStatus().getFailed().getFailure().isSetOperationTimeout()) {
                 error.setErrorCode(OPERATION_TIMEOUT);
+            } else {
+                error.setErrorCode("unknown error");
             }
         }
         return error;
@@ -60,6 +60,11 @@ public class RefundInfoInitiatorDecorator implements InfoInitializer<InvoicePaym
     @Override
     public ReferenceInfo initReferenceInfo(Invoice invoice) {
         return generalInfoInitiator.initReferenceInfo(invoice);
+    }
+
+    @Override
+    public PaymentTool initPaymentTool(Payer payer) {
+        return generalInfoInitiator.initPaymentTool(payer);
     }
 
 }

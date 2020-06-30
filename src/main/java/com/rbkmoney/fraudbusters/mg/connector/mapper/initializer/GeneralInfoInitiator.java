@@ -1,7 +1,5 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.initializer;
 
-import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.Error;
@@ -21,8 +19,9 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
     public static final String UNKNOWN = "UNKNOWN";
 
     public Error initError(InvoicePaymentStatusChanged invoicePaymentStatusChanged) {
-        Error error = new Error();
+        Error error = null;
         if (invoicePaymentStatusChanged.getStatus().isSetFailed()) {
+            error = new Error();
             OperationFailure operationFailure = invoicePaymentStatusChanged.getStatus().getFailed().getFailure();
             if (operationFailure.isSetFailure()) {
                 Failure failure = operationFailure.getFailure();
@@ -30,6 +29,8 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
                         .setErrorReason(failure.getReason());
             } else if (invoicePaymentStatusChanged.getStatus().getFailed().getFailure().isSetOperationTimeout()) {
                 error.setErrorCode(OPERATION_TIMEOUT);
+            } else {
+                error.setErrorCode("unknown error");
             }
         }
         return error;
@@ -61,20 +62,21 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
         ProviderInfo providerInfo = new ProviderInfo();
         Payer payer = invoicePayment.getPayment().getPayer();
         PaymentTool paymentTool = initPaymentTool(payer);
-        if (paymentTool != null && invoicePayment != null) {
-            if (invoicePayment.isSetRoute()) {
-                providerInfo.setTerminalId(String.valueOf(invoicePayment.getRoute().getTerminal().getId()));
-                providerInfo.setProviderId(String.valueOf(invoicePayment.getRoute().getProvider().getId()));
-            }
-            if (paymentTool.isSetBankCard()) {
-                BankCard bankCard = paymentTool.getBankCard();
-                providerInfo.setCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : UNKNOWN);
-            }
+        if (invoicePayment.isSetRoute()) {
+            providerInfo.setTerminalId(String.valueOf(invoicePayment.getRoute().getTerminal().getId()));
+            providerInfo.setProviderId(String.valueOf(invoicePayment.getRoute().getProvider().getId()));
+        } else {
+            providerInfo.setTerminalId(UNKNOWN);
+            providerInfo.setProviderId(UNKNOWN);
+        }
+        if (paymentTool != null && paymentTool.isSetBankCard()) {
+            BankCard bankCard = paymentTool.getBankCard();
+            providerInfo.setCountry(bankCard.isSetIssuerCountry() ? bankCard.getIssuerCountry().name() : UNKNOWN);
         }
         return providerInfo;
     }
 
-    private PaymentTool initPaymentTool(Payer payer) {
+    public PaymentTool initPaymentTool(Payer payer) {
         PaymentTool paymentTool = null;
         if (payer.isSetPaymentResource() && payer.getPaymentResource().isSetResource()) {
             DisposablePaymentResource resource = payer.getPaymentResource().getResource();

@@ -28,6 +28,8 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
 
     @Override
     public Refund map(InvoiceChange change, MachineEvent event) {
+        log.debug("RefundPaymentMapper change: {} event: {}", change, event);
+
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
@@ -47,7 +49,7 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
                 .setStatus(TBaseUtil.unionFieldToEnum(payload.getInvoicePaymentRefundStatusChanged().getStatus(), RefundStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
-                .setPaymentTool(com.rbkmoney.damsel.fraudbusters.PaymentTool.bank_card(new com.rbkmoney.damsel.fraudbusters.BankCard()))
+                .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
                 .setId(invoice.getId() + invoicePaymentRefundChange.getId())
                 .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
                 .setEventTime(event.getCreatedAt())
@@ -56,7 +58,7 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
                 .setError(generalInfoInitiator.initError(invoicePaymentRefundStatusChanged));
 
         log.debug("RefundPaymentMapper refund: {}", refund);
-        return new Refund();
+        return refund;
     }
 
     private BiFunction<String, Invoice, Optional<InvoicePayment>> findPayment() {

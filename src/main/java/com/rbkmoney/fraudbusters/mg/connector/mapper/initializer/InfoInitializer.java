@@ -1,11 +1,11 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.initializer;
 
+import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.Invoice;
 import com.rbkmoney.damsel.domain.Payer;
-import com.rbkmoney.damsel.fraudbusters.ClientInfo;
+import com.rbkmoney.damsel.domain.PaymentTool;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.Error;
-import com.rbkmoney.damsel.fraudbusters.ProviderInfo;
-import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 
 public interface InfoInitializer<T> {
@@ -19,5 +19,7 @@ public interface InfoInitializer<T> {
     ProviderInfo initProviderInfo(InvoicePayment invoicePayment);
 
     ReferenceInfo initReferenceInfo(Invoice invoice);
+
+    PaymentTool initPaymentTool(Payer payer);
 
 }

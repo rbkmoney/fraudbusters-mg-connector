@@ -53,7 +53,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
-                .setPaymentTool(com.rbkmoney.damsel.fraudbusters.PaymentTool.bank_card(new com.rbkmoney.damsel.fraudbusters.BankCard()))
+                .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
                 .setId(invoice.getId() + invoicePayment.getPayment().getId())
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
