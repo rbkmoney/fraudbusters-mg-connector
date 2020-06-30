@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.mg.connector.stream;
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.SourceEventParser;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.ChargebackPaymentMapper;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.InvoicePaymentMapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.PaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.RefundPaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.serde.ChargebackSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.MachineEventSerde;
@@ -39,7 +39,7 @@ public class MgEventSinkToFraudStreamFactory {
     private String chargebackTopic;
 
     private final MachineEventSerde machineEventSerde = new MachineEventSerde();
-    private final InvoicePaymentMapper invoicePaymentMapper;
+    private final PaymentMapper paymentMapper;
     private final ChargebackPaymentMapper chargebackPaymentMapper;
     private final RefundPaymentMapper refundPaymentMapper;
     private final SourceEventParser eventParser;
@@ -61,12 +61,12 @@ public class MgEventSinkToFraudStreamFactory {
                                             .event(entry.getKey())
                                             .build())
                                     .collect(Collectors.toList()))
-                            .branch((id, change) -> invoicePaymentMapper.accept(change.getChange()),
+                            .branch((id, change) -> paymentMapper.accept(change.getChange()),
                                     (id, change) -> chargebackPaymentMapper.accept(change.getChange()),
                                     (id, change) -> refundPaymentMapper.accept(change.getChange())
                             );
 
-            branch[0].mapValues(mgEventWrapper -> invoicePaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent()))
+            branch[0].mapValues(mgEventWrapper -> paymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent()))
                     .to(paymentTopic, Produced.with(Serdes.String(), paymentSerde));
 
             branch[1].mapValues(mgEventWrapper -> chargebackPaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent()))
