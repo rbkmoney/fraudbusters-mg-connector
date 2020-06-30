@@ -6,8 +6,8 @@ import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.GeneralInfoInitiator;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer;
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -24,7 +24,7 @@ import java.util.function.BiFunction;
 public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Payment> {
 
     private final HgClientService hgClientService;
-    private final GeneralInfoInitiator generalInfoInitiator;
+    private final InfoInitializer<InvoicePaymentStatusChanged> generalInfoInitiator;
 
     @Override
     public boolean accept(InvoiceChange change) {

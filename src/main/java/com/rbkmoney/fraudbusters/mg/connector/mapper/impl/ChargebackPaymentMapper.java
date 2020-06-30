@@ -1,11 +1,14 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
+import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
+import com.rbkmoney.damsel.fraudbusters.ChargebackCategory;
 import com.rbkmoney.damsel.fraudbusters.ChargebackStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer;
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
@@ -22,6 +25,7 @@ import java.util.function.BiFunction;
 public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEvent, Chargeback> {
 
     private final HgClientService hgClientService;
+    private final InfoInitializer<InvoicePaymentRefundStatusChanged> generalInfoInitiator;
 
     @Override
     public Chargeback map(InvoiceChange change, MachineEvent event) {
@@ -35,9 +39,31 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
         InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(),
                 paymentId, chargebackId, event.getEventId());
 
-        Chargeback chargeback = new Chargeback();
-        chargeback.setStatus(TBaseUtil.unionFieldToEnum(
-                invoicePaymentChargebackStatusChanged.getStatus(), ChargebackStatus.class));
+        var invoice = invoicePaymentWrapper.getInvoice();
+        var invoicePayment = invoicePaymentWrapper.getInvoicePayment();
+
+        Payer payer = invoicePayment.getPayment().getPayer();
+
+        Optional<InvoicePaymentChargeback> cargeback = invoicePayment.getChargebacks().stream()
+                .filter(chargeback -> chargeback.getChargeback().getId().equals(chargebackId))
+                .findFirst();
+
+        Chargeback chargeback = new Chargeback()
+                .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentChargebackStatusChanged.getStatus(), ChargebackStatus.class))
+                .setCost(invoicePayment.getPayment().getCost())
+                .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
+                .setPaymentTool(com.rbkmoney.damsel.fraudbusters.PaymentTool.bank_card(new com.rbkmoney.damsel.fraudbusters.BankCard()))
+                .setId(invoice.getId() + invoicePaymentChargebackChange.getId())
+                .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
+                .setEventTime(event.getCreatedAt())
+                .setClientInfo(generalInfoInitiator.initClientInfo(payer))
+                .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment));
+
+        if (cargeback.isPresent()) {
+            var invoicePaymentChargeback = cargeback.get().getChargeback();
+            chargeback.setChargebackCode(invoicePaymentChargeback.getReason().getCode())
+                    .setCategory(TBaseUtil.unionFieldToEnum(invoicePaymentChargeback.getReason().getCategory(), ChargebackCategory.class));
+        }
 
         log.debug("ChargebackPaymentMapper chargebackRow: {}", chargeback);
         return new Chargeback();

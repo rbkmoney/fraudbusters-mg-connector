@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.mg.connector.mapper;
+package com.rbkmoney.fraudbusters.mg.connector.mapper.initializer;
 
 import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.PaymentTool;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class GeneralInfoInitiator {
+public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatusChanged> {
 
     public static final String OPERATION_TIMEOUT = "operation_timeout";
     public static final String UNKNOWN = "UNKNOWN";

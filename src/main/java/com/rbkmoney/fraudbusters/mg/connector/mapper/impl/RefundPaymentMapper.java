@@ -1,17 +1,15 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
-import com.rbkmoney.damsel.domain.Failure;
-import com.rbkmoney.damsel.domain.OperationFailure;
-import com.rbkmoney.damsel.fraudbusters.Error;
+import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.fraudbusters.RefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer;
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
 import com.rbkmoney.geck.common.util.TBaseUtil;
-import com.rbkmoney.geck.serializer.kit.tbase.TErrorUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,9 +23,8 @@ import java.util.function.BiFunction;
 @RequiredArgsConstructor
 public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, Refund> {
 
-    public static final String OPERATION_TIMEOUT = "operation_timeout";
-
     private final HgClientService hgClientService;
+    private final InfoInitializer<InvoicePaymentRefundStatusChanged> generalInfoInitiator;
 
     @Override
     public Refund map(InvoiceChange change, MachineEvent event) {
@@ -38,27 +35,25 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
         InvoicePaymentRefundStatusChanged invoicePaymentRefundStatusChanged = payload.getInvoicePaymentRefundStatusChanged();
         String refundId = invoicePaymentRefundChange.getId();
 
-        InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo( event.getSourceId(), findPayment(),
+        InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(),
                 paymentId, refundId, event.getEventId());
 
-        Refund refund = new Refund();
+        var invoice = invoicePaymentWrapper.getInvoice();
+        var invoicePayment = invoicePaymentWrapper.getInvoicePayment();
 
-        refund.setStatus(TBaseUtil.unionFieldToEnum(payload
-                .getInvoicePaymentRefundStatusChanged()
-                .getStatus(), RefundStatus.class));
+        Payer payer = invoicePayment.getPayment().getPayer();
 
-        if (invoicePaymentRefundStatusChanged.getStatus().isSetFailed()) {
-            OperationFailure operationFailure = invoicePaymentRefundStatusChanged.getStatus().getFailed().getFailure();
-            if (operationFailure.isSetFailure()) {
-                Failure failure = operationFailure.getFailure();
-                refund.setError(new Error()
-                        .setErrorCode(TErrorUtil.toStringVal(failure))
-                        .setErrorReason(failure.getReason()));
-            } else if (invoicePaymentRefundStatusChanged.getStatus().getFailed().getFailure().isSetOperationTimeout()) {
-                refund.setError(new Error()
-                        .setErrorCode(OPERATION_TIMEOUT));
-            }
-        }
+        Refund refund = new Refund()
+                .setStatus(TBaseUtil.unionFieldToEnum(payload.getInvoicePaymentRefundStatusChanged().getStatus(), RefundStatus.class))
+                .setCost(invoicePayment.getPayment().getCost())
+                .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
+                .setPaymentTool(com.rbkmoney.damsel.fraudbusters.PaymentTool.bank_card(new com.rbkmoney.damsel.fraudbusters.BankCard()))
+                .setId(invoice.getId() + invoicePaymentRefundChange.getId())
+                .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
+                .setEventTime(event.getCreatedAt())
+                .setClientInfo(generalInfoInitiator.initClientInfo(payer))
+                .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
+                .setError(generalInfoInitiator.initError(invoicePaymentRefundStatusChanged));
 
         log.debug("RefundPaymentMapper refund: {}", refund);
         return new Refund();
