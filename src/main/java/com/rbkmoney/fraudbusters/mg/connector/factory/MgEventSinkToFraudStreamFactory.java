@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.mg.connector.stream;
+package com.rbkmoney.fraudbusters.mg.connector.factory;
 
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.SourceEventParser;

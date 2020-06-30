@@ -35,7 +35,7 @@
         <machinegun-proto.version>1.12-ebae56f</machinegun-proto.version>
         <geck.version>0.6.7</geck.version>
         <fraudbusters-proto.version>1.39-a4f202a</fraudbusters-proto.version>
-        <kafka.streams.version>2.1.0</kafka.streams.version>
+        <kafka.streams.version>2.5.0</kafka.streams.version>
     </properties>
 
     <dependencies>

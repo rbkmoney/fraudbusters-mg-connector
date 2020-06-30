@@ -27,6 +27,14 @@ service:
     networkTimeout: 5000
 
 kafka:
+  bootstrap.servers: "localhost:29092"
+  ssl:
+    enable: false
+    keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
+    keystore-password: kenny
+    key-password: kenny
+    server-password: kenny12
+    server-keystore-location: src/main/resources/cert/truststore.p12
   topic:
     mg-event: mg-event
     payment: payment
