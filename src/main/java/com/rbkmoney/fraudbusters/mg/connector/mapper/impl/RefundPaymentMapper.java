@@ -50,8 +50,9 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
-                .setId(invoice.getId() + invoicePaymentRefundChange.getId())
-                .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
+                .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId(),
+                        invoicePaymentRefundChange.getId()))
+                .setPaymentId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))

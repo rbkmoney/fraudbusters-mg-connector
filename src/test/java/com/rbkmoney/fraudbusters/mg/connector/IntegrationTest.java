@@ -50,9 +50,6 @@ public class IntegrationTest extends KafkaAbstractTest {
     @MockBean
     InvoicingSrv.Iface invoicingClient;
 
-    @Autowired
-    private EventRangeFactory eventRangeFactory;
-
     @Test
     public void contextLoads() throws TException, IOException, InterruptedException {
         Mockito.when(invoicingClient.get(any(), any(), any()))

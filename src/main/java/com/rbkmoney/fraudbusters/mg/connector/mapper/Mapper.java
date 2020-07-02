@@ -5,6 +5,8 @@ import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 
 public interface Mapper<C, P, R> {
 
+    String DELIMITER = ".";
+
     default boolean accept(C change) {
         return getChangeType().getFilter().match(change);
     }

@@ -54,7 +54,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
-                .setId(invoice.getId() + invoicePayment.getPayment().getId())
+                .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))

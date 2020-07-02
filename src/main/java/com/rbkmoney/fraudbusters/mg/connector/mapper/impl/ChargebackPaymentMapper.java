@@ -51,8 +51,9 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
-                .setId(invoice.getId() + invoicePaymentChargebackChange.getId())
-                .setPaymentId(invoice.getId() + invoicePayment.getPayment().getId())
+                .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId(),
+                        invoicePaymentChargebackChange.getId()))
+                .setPaymentId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment));

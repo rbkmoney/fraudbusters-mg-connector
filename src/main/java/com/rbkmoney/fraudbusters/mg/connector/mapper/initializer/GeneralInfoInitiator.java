@@ -77,20 +77,17 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
     }
 
     public PaymentTool initPaymentTool(Payer payer) {
-        PaymentTool paymentTool = null;
         if (payer.isSetPaymentResource() && payer.getPaymentResource().isSetResource()) {
-            DisposablePaymentResource resource = payer.getPaymentResource().getResource();
-            paymentTool = resource.getPaymentTool();
+            return payer.getPaymentResource().getResource().getPaymentTool();
         } else if (payer.isSetCustomer()) {
             CustomerPayer customer = payer.getCustomer();
-            paymentTool = customer.getPaymentTool();
+            return customer.getPaymentTool();
         } else if (payer.isSetRecurrent()) {
             RecurrentPayer recurrent = payer.getRecurrent();
-            paymentTool = recurrent.getPaymentTool();
-        } else {
-            log.warn("Unknown payment tool in payer: {}", payer);
+            return recurrent.getPaymentTool();
         }
-        return paymentTool;
+        log.warn("Unknown payment tool in payer: {}", payer);
+        return null;
     }
 
     public ReferenceInfo initReferenceInfo(com.rbkmoney.damsel.domain.Invoice invoice) {
