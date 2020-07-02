@@ -30,6 +30,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static org.reflections.Reflections.log;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -61,7 +63,9 @@ public class MgEventSinkToFraudStreamFactory {
             KStream<String, MgEventWrapper>[] branch =
                     builder.stream(readTopic, Consumed.with(Serdes.String(), machineEventSerde))
                             .mapValues(machineEvent -> Map.entry(machineEvent, eventParser.parseEvent(machineEvent)))
+                            .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .filter((s, entry) -> entry.getValue().isSetInvoiceChanges())
+                            .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .flatMapValues(entry -> entry.getValue().getInvoiceChanges().stream()
                                     .map(invoiceChange -> wrapMgEvent(entry, invoiceChange))
                                     .collect(Collectors.toList()))
