@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.mg.connector;
 
 import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.payment_processing.Invoice;
 import com.rbkmoney.damsel.payment_processing.InvoicingSrv;
 import com.rbkmoney.fraudbusters.mg.connector.factory.EventRangeFactory;
 import com.rbkmoney.fraudbusters.mg.connector.serde.deserializer.ChargebackDeserializer;
@@ -19,6 +20,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.OngoingStubbing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,6 +37,7 @@ import java.util.List;
 public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
 
     public static final String SOURCE_ID = "source_id";
+    public static final long TIMEOUT = 2000L;
 
     @MockBean
     InvoicingSrv.Iface invoicingClient;
@@ -65,10 +68,16 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
         sinkEvents.forEach(this::produceMessageToEventSink);
 
         checkMessageInTopic(CHARGEBACK, ChargebackDeserializer.class, 1);
+
+        //check exceptions retry
+        sinkEvents = MgEventSinkFlowGenerator.generateSuccessFlow(SOURCE_ID);
+        mockPaymentWithException(SOURCE_ID);
+        sinkEvents.forEach(this::produceMessageToEventSink);
+        checkMessageInTopic(PAYMENT, PaymentDeserializer.class, 6);
     }
 
-    private void checkMessageInTopic(String topicName, Class clazz, int size) throws InterruptedException {
-        Thread.sleep(2000L);
+    private void checkMessageInTopic(String topicName, Class<?> clazz, int size) throws InterruptedException {
+        Thread.sleep(TIMEOUT);
 
         Consumer<String, Payment> consumer = createPaymentConsumer(clazz);
         try {
@@ -84,16 +93,25 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
     }
 
     private void mockPayment(String sourceId) throws TException, IOException {
+        mockPayment(sourceId, 4);
+        mockPayment(sourceId, 5);
+    }
+
+    private void mockPaymentWithException(String sourceId) throws TException, IOException {
         Mockito.when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(4)))
+                .thenThrow(new RuntimeException())
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         sourceId, "1", "1", "1",
                         InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
-        Mockito.when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(5)))
+        mockPayment(sourceId, 5);
+    }
+
+    private OngoingStubbing<Invoice> mockPayment(String sourceId, int i) throws TException, IOException {
+        return Mockito.when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(i)))
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         sourceId, "1", "1", "1",
                         InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
     }
-
 
     private void mockRefund(String sourceId, int sequenceId, String refundId) throws TException, IOException {
         Mockito.when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(sequenceId)))
