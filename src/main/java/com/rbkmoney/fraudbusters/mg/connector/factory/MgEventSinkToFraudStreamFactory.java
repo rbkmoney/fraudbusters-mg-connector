@@ -73,19 +73,16 @@ public class MgEventSinkToFraudStreamFactory {
             branch[0].mapValues(mgEventWrapper ->
                     retryTemplate.execute(args ->
                             paymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
-                    .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory payment: {}", payment))
                     .to(paymentTopic, Produced.with(Serdes.String(), paymentSerde));
 
             branch[1].mapValues(mgEventWrapper ->
                     retryTemplate.execute(args ->
                             chargebackPaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
-                    .peek((s, chargeback) -> log.debug("MgEventSinkToFraudStreamFactory chargeback: {}", chargeback))
                     .to(chargebackTopic, Produced.with(Serdes.String(), chargebackSerde));
 
             branch[2].mapValues(mgEventWrapper ->
                     retryTemplate.execute(args ->
                             refundPaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
-                    .peek((s, refund) -> log.debug("MgEventSinkToFraudStreamFactory refund: {}", refund))
                     .to(refundTopic, Produced.with(Serdes.String(), refundSerde));
 
             return new KafkaStreams(builder.build(), streamsConfiguration);
