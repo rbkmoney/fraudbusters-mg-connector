@@ -30,8 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import static org.reflections.Reflections.log;
-
 @Slf4j
 @Component
 @RequiredArgsConstructor

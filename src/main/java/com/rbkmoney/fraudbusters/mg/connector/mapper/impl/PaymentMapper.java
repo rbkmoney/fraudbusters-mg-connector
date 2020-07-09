@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -58,6 +59,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
+                .setPayerType(PayerTypeResolver.resolve(payer))
                 .setError(generalInfoInitiator.initError(invoicePaymentStatusChanged));
 
         log.debug("InvoicePaymentMapper payment: {}", payment);

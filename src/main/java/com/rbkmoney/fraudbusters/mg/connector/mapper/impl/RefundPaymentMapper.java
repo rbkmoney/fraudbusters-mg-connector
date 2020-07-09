@@ -4,6 +4,7 @@ import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.fraudbusters.RefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -56,6 +57,7 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
+                .setPayerType(PayerTypeResolver.resolve(payer))
                 .setError(generalInfoInitiator.initError(invoicePaymentRefundStatusChanged));
 
         log.debug("RefundPaymentMapper refund: {}", refund);
