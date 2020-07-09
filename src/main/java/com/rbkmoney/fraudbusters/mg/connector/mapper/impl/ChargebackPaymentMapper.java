@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.ChargebackCategory;
 import com.rbkmoney.damsel.fraudbusters.ChargebackStatus;
 import com.rbkmoney.damsel.payment_processing.*;
+import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -56,6 +57,7 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
                 .setPaymentId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
+                .setPayerType(PayerTypeResolver.resolve(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment));
 
         invoicePayment.getChargebacks().stream()
