@@ -1,10 +1,10 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
 import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.fraudbusters.PayerType;
 import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.fraudbusters.RefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -26,6 +26,15 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
 
     private final HgClientService hgClientService;
     private final InfoInitializer<InvoicePaymentRefundStatusChanged> generalInfoInitiator;
+
+    @Override
+    public boolean accept(InvoiceChange change) {
+        return getChangeType().getFilter().match(change)
+                && (change.getInvoicePaymentChange().getPayload().getInvoicePaymentRefundChange()
+                .getPayload().getInvoicePaymentRefundStatusChanged().getStatus().isSetFailed()
+                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentRefundChange()
+                .getPayload().getInvoicePaymentRefundStatusChanged().getStatus().isSetSucceeded());
+    }
 
     @Override
     public Refund map(InvoiceChange change, MachineEvent event) {
@@ -57,7 +66,7 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
-                .setPayerType(PayerTypeResolver.resolve(payer))
+                .setPayerType(TBaseUtil.unionFieldToEnum(payer, PayerType.class))
                 .setError(generalInfoInitiator.initError(invoicePaymentRefundStatusChanged));
 
         log.debug("RefundPaymentMapper refund: {}", refund);

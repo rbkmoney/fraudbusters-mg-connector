@@ -1,10 +1,11 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
 import com.rbkmoney.damsel.domain.Payer;
+import com.rbkmoney.damsel.domain.PaymentTool;
+import com.rbkmoney.damsel.fraudbusters.PayerType;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -31,7 +32,6 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     public boolean accept(InvoiceChange change) {
         return getChangeType().getFilter().match(change)
                 && (change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetFailed()
-                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetCancelled()
                 || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetProcessed()
                 || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetCaptured());
     }
@@ -50,16 +50,19 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
 
         Payer payer = invoicePayment.getPayment().getPayer();
 
+        PaymentTool paymentTool = generalInfoInitiator.initPaymentTool(payer);
         Payment payment = new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
-                .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
+                .setPaymentTool(paymentTool)
                 .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
-                .setPayerType(PayerTypeResolver.resolve(payer))
+                .setPayerType(TBaseUtil.unionFieldToEnum(payer, PayerType.class))
+                .setMobile(isMobile(paymentTool))
+                .setRecurrent(isRecurrent(payer))
                 .setError(generalInfoInitiator.initError(invoicePaymentStatusChanged));
 
         log.debug("InvoicePaymentMapper payment: {}", payment);
@@ -77,4 +80,12 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         return EventType.INVOICE_PAYMENT_STATUS_CHANGED;
     }
 
+
+    public boolean isRecurrent(Payer payer) {
+        return payer.isSetRecurrent() || payer.isSetCustomer();
+    }
+
+    public boolean isMobile(PaymentTool paymentTool) {
+        return paymentTool.isSetBankCard() && paymentTool.getBankCard().isSetTokenProvider();
+    }
 }
