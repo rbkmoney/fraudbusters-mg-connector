@@ -4,8 +4,8 @@ import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.fraudbusters.Chargeback;
 import com.rbkmoney.damsel.fraudbusters.ChargebackCategory;
 import com.rbkmoney.damsel.fraudbusters.ChargebackStatus;
+import com.rbkmoney.damsel.fraudbusters.PayerType;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.fraudbusters.mg.connector.PayerTypeResolver;
 import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
@@ -27,6 +27,17 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
 
     private final HgClientService hgClientService;
     private final GeneralInfoInitiator generalInfoInitiator;
+
+    @Override
+    public boolean accept(InvoiceChange change) {
+        return getChangeType().getFilter().match(change)
+                && (change.getInvoicePaymentChange().getPayload().getInvoicePaymentChargebackChange()
+                .getPayload().getInvoicePaymentChargebackStatusChanged().getStatus().isSetRejected()
+                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentChargebackChange()
+                .getPayload().getInvoicePaymentChargebackStatusChanged().getStatus().isSetAccepted()
+                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentChargebackChange()
+                .getPayload().getInvoicePaymentChargebackStatusChanged().getStatus().isSetCancelled());
+    }
 
     @Override
     public Chargeback map(InvoiceChange change, MachineEvent event) {
@@ -57,7 +68,7 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
                 .setPaymentId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
-                .setPayerType(PayerTypeResolver.resolve(payer))
+                .setPayerType(TBaseUtil.unionFieldToEnum(payer, PayerType.class))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment));
 
         invoicePayment.getChargebacks().stream()
