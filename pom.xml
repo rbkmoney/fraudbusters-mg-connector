@@ -13,7 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>Fraudbusters mg connector</name>
+    <name>fraudbusters-mg-connector</name>
     <description></description>
 
     <properties>
