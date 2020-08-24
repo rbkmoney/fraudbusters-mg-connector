@@ -28,6 +28,7 @@ service:
 
 kafka:
   bootstrap.servers: "localhost:29092"
+  num-stream-threads: 7
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12
