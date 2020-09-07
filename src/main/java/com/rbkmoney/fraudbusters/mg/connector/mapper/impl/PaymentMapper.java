@@ -43,7 +43,15 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         InvoicePaymentChangePayload payload = invoicePaymentChange.getPayload();
         InvoicePaymentStatusChanged invoicePaymentStatusChanged = payload.getInvoicePaymentStatusChanged();
 
-        InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(), paymentId, event.getEventId());
+        InvoicePaymentWrapper invoicePaymentWrapper = null;
+
+        try {
+            invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(), paymentId, event.getEventId());
+        } catch (Exception e) {
+            log.warn("Problem when get invoice info for event: {} change: {} status: {}", event,
+                    change, change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus());
+            throw e;
+        }
 
         var invoice = invoicePaymentWrapper.getInvoice();
         var invoicePayment = invoicePaymentWrapper.getInvoicePayment();

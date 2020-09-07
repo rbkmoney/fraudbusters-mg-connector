@@ -52,7 +52,8 @@ public class HgClientService {
                     });
             return invoicePaymentWrapper;
         } catch (TException e) {
-            log.error("Error when HgClientService getInvoiceInfo e: ", e);
+            log.error("Error when HgClientService getInvoiceInfo invoiceId: {} eventId: {} sequenceId: {} e: ",
+                    invoiceId, eventId, sequenceId, e);
             throw new PaymentInfoRequestException(e);
         }
     }
