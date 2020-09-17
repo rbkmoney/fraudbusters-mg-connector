@@ -44,7 +44,7 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
                 var clientInfoRes = resource.getClientInfo();
                 String ipAddress = clientInfoRes.getIpAddress();
                 clientInfo.setIp(ipAddress);
-                clientInfo.setFingerprint(clientInfo.getFingerprint());
+                clientInfo.setFingerprint(clientInfoRes.getFingerprint());
             }
         }
         initEmail(clientInfo, payer);
