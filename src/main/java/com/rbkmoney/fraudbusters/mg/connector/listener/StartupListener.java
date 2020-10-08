@@ -26,12 +26,19 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         kafkaStreams = sinkToFraudStreamFactory.create(mgEventStreamProperties);
+        kafkaStreams.setUncaughtExceptionHandler(
+                (Thread t, Throwable e) -> {
+                    log.error("Unhandled exception in " + t.getName() + ", exiting. {}", kafkaStreams, e);
+                    stop();
+                    System.exit(1);
+                }
+        );
         kafkaStreams.start();
         log.info("StartupListener start stream kafkaStreams: {}", kafkaStreams.allMetadata());
     }
 
     public void stop() {
-        kafkaStreams.close(Duration.ofSeconds(1L));
+        kafkaStreams.close(Duration.ofSeconds(5L));
         registry.stop();
     }
 
