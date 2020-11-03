@@ -113,7 +113,7 @@ public class IntegrationTest extends KafkaAbstractTest {
         props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, PKCS_12);
         props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, new File("src/test/resources/broker/strug.p12").getAbsolutePath());
         props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "xxx");
-        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "mxmNssXZ1u6z1h5Y");
+        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "xxx");
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "dev-kafka-mirror.bst1.rbkmoney.net:9092");
         props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SinkEventDeserializer.class);
