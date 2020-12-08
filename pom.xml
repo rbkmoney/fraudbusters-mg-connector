@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <shared.resources.version>0.3.8</shared.resources.version>
-        <damsel.version>1.460-3710cab</damsel.version>
+        <damsel.version>1.466-060478e</damsel.version>
         <kafka.common.lib.version>0.0.9</kafka.common.lib.version>
         <damsel-utils.version>2.1.3</damsel-utils.version>
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
