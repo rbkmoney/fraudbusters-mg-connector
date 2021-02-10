@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.PayerType;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.PaymentStatus;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
+import com.rbkmoney.fraudbusters.mg.connector.constant.InvoiceEventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer;
@@ -84,8 +84,8 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     }
 
     @Override
-    public EventType getChangeType() {
-        return EventType.INVOICE_PAYMENT_STATUS_CHANGED;
+    public InvoiceEventType getChangeType() {
+        return InvoiceEventType.INVOICE_PAYMENT_STATUS_CHANGED;
     }
 
 

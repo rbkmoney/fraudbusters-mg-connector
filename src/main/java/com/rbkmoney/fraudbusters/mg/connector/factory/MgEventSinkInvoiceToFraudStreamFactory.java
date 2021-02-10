@@ -4,7 +4,7 @@ import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.SourceEventParser;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.PaymentEventParser;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.ChargebackPaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.PaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.RefundPaymentMapper;
@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MgEventSinkToFraudStreamFactory {
+public class MgEventSinkInvoiceToFraudStreamFactory {
 
     @Value("${kafka.topic.mg-event}")
     private String readTopic;
@@ -48,7 +48,7 @@ public class MgEventSinkToFraudStreamFactory {
     private final PaymentMapper paymentMapper;
     private final ChargebackPaymentMapper chargebackPaymentMapper;
     private final RefundPaymentMapper refundPaymentMapper;
-    private final SourceEventParser eventParser;
+    private final PaymentEventParser eventParser;
     private final RetryTemplate retryTemplate;
 
     private final PaymentSerde paymentSerde = new PaymentSerde();

@@ -6,7 +6,7 @@ import com.rbkmoney.damsel.fraudbusters.ChargebackCategory;
 import com.rbkmoney.damsel.fraudbusters.ChargebackStatus;
 import com.rbkmoney.damsel.fraudbusters.PayerType;
 import com.rbkmoney.damsel.payment_processing.*;
-import com.rbkmoney.fraudbusters.mg.connector.constant.EventType;
+import com.rbkmoney.fraudbusters.mg.connector.constant.InvoiceEventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.GeneralInfoInitiator;
@@ -96,8 +96,8 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
     }
 
     @Override
-    public EventType getChangeType() {
-        return EventType.INVOICE_PAYMENT_CHARGEBACK_STATUS_CHANGED;
+    public InvoiceEventType getChangeType() {
+        return InvoiceEventType.INVOICE_PAYMENT_CHARGEBACK_STATUS_CHANGED;
     }
 
 }

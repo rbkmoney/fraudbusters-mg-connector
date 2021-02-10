@@ -1,6 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.listener;
 
-import com.rbkmoney.fraudbusters.mg.connector.factory.MgEventSinkToFraudStreamFactory;
+import com.rbkmoney.fraudbusters.mg.connector.factory.MgEventSinkInvoiceToFraudStreamFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
@@ -17,7 +17,7 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    private final MgEventSinkToFraudStreamFactory sinkToFraudStreamFactory;
+    private final MgEventSinkInvoiceToFraudStreamFactory sinkToFraudStreamFactory;
     private final Properties mgEventStreamProperties;
     private final KafkaListenerEndpointRegistry registry;
 

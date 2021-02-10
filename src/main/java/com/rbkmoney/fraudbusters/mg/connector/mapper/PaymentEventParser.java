@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SourceEventParser {
+public class PaymentEventParser {
 
     private final BinaryConverter<EventPayload> converter;
 
