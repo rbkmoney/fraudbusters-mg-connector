@@ -27,9 +27,9 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class MgEventSinkWithdrawalToFraudStreamFactory {
 
-    @Value("${kafka.topic.mg-event.withdrawal}")
+    @Value("${kafka.topic.source.withdrawal}")
     private String source;
-    @Value("${kafka.topic.withdrawal}")
+    @Value("${kafka.topic.sink.withdrawal}")
     private String sink;
 
     private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();

@@ -13,7 +13,6 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
-import org.jetbrains.annotations.NotNull;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -60,7 +59,6 @@ public abstract class KafkaAbstractTest {
             initTopic(CHARGEBACK);
         }
 
-        @NotNull
         private <T> Consumer<String, T> initTopic(String topicName) {
             Consumer<String, T> consumer = createConsumer();
             try {

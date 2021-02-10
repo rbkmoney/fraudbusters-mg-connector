@@ -14,7 +14,6 @@ import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import com.rbkmoney.machinegun.msgpack.Value;
-import org.jetbrains.annotations.NotNull;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -270,7 +269,6 @@ public class MgEventSinkFlowGenerator {
                 );
     }
 
-    @NotNull
     public static Cash createCash() {
         return new Cash(12L, new CurrencyRef("RUB"));
     }
@@ -337,7 +335,6 @@ public class MgEventSinkFlowGenerator {
         return createInvoiceChangeChangeStatus(InvoicePaymentStatus.pending(new InvoicePaymentPending()));
     }
 
-    @NotNull
     private static InvoiceChange createInvoiceChange(InvoicePaymentStatus invoicePaymentStatus) {
         InvoicePaymentChangePayload invoicePaymentChangePayload = new InvoicePaymentChangePayload();
         invoicePaymentChangePayload.setInvoicePaymentStatusChanged(
@@ -365,7 +362,6 @@ public class MgEventSinkFlowGenerator {
         return invoiceChange;
     }
 
-    @NotNull
     private static InvoiceChange createInvoiceChangeChangeStatus(InvoicePaymentStatus invoicePaymentStatus) {
         InvoicePaymentChangePayload invoicePaymentChangePayload = new InvoicePaymentChangePayload();
         invoicePaymentChangePayload.setInvoicePaymentStatusChanged(
@@ -378,7 +374,6 @@ public class MgEventSinkFlowGenerator {
         return invoiceChange;
     }
 
-    @NotNull
     private static InvoicePaymentFlow createFlow() {
         InvoicePaymentFlow flow = new InvoicePaymentFlow();
         InvoicePaymentFlowHold invoicePaymentFlowHold = new InvoicePaymentFlowHold();

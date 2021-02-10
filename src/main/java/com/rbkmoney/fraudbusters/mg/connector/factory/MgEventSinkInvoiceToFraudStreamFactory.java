@@ -35,13 +35,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MgEventSinkInvoiceToFraudStreamFactory {
 
-    @Value("${kafka.topic.mg-event}")
+    @Value("${kafka.topic.source.invoicing}")
     private String readTopic;
-    @Value("${kafka.topic.refund}")
+    @Value("${kafka.topic.sink.refund}")
     private String refundTopic;
-    @Value("${kafka.topic.payment}")
+    @Value("${kafka.topic.sink.payment}")
     private String paymentTopic;
-    @Value("${kafka.topic.chargeback}")
+    @Value("${kafka.topic.sink.chargeback}")
     private String chargebackTopic;
 
     private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
