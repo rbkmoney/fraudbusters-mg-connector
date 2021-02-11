@@ -4,10 +4,10 @@ import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.PaymentEventParser;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.ChargebackPaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.PaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.RefundPaymentMapper;
+import com.rbkmoney.fraudbusters.mg.connector.parser.EventParser;
 import com.rbkmoney.fraudbusters.mg.connector.serde.ChargebackSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.MachineEventSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.PaymentSerde;
@@ -48,7 +48,7 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
     private final PaymentMapper paymentMapper;
     private final ChargebackPaymentMapper chargebackPaymentMapper;
     private final RefundPaymentMapper refundPaymentMapper;
-    private final PaymentEventParser eventParser;
+    private final EventParser<EventPayload> paymentEventParser;
     private final RetryTemplate retryTemplate;
 
     private final PaymentSerde paymentSerde = new PaymentSerde();
@@ -62,7 +62,7 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, MgEventWrapper>[] branch =
                     builder.stream(readTopic, Consumed.with(Serdes.String(), machineEventSerde))
-                            .mapValues(machineEvent -> Map.entry(machineEvent, eventParser.parseEvent(machineEvent)))
+                            .mapValues(machineEvent -> Map.entry(machineEvent, paymentEventParser.parseEvent(machineEvent)))
                             .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .filter((s, entry) -> entry.getValue().isSetInvoiceChanges())
                             .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))

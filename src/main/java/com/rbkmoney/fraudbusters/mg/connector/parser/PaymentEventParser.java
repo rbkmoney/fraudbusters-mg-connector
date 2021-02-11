@@ -1,4 +1,4 @@
-package com.rbkmoney.fraudbusters.mg.connector.mapper;
+package com.rbkmoney.fraudbusters.mg.connector.parser;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.fraudbusters.mg.connector.converter.BinaryConverter;
@@ -10,10 +10,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class PaymentEventParser {
+public class PaymentEventParser implements EventParser<EventPayload> {
 
     private final BinaryConverter<EventPayload> converter;
 
+    @Override
     public EventPayload parseEvent(MachineEvent message) {
         try {
             byte[] bin = message.getData().getBin();
