@@ -21,7 +21,7 @@ public class KafkaConfig {
     private static final String APP_ID = "fraud-connector";
     private static final String CLIENT_ID = "fraud-connector-client";
     private static final String PKCS_12 = "PKCS12";
-    public static final String PAYOUT_SUFFIX = "-payout";
+    public static final String WITHDRAWAL_SUFFIX = "-withdrawal";
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -55,8 +55,8 @@ public class KafkaConfig {
     @Bean
     public Properties mgWithdrawalEventStreamProperties() {
         final Properties props = new Properties();
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APP_ID + PAYOUT_SUFFIX);
-        props.put(StreamsConfig.CLIENT_ID_CONFIG, CLIENT_ID + PAYOUT_SUFFIX);
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APP_ID + WITHDRAWAL_SUFFIX);
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, CLIENT_ID + WITHDRAWAL_SUFFIX);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MachineEventSerde.class);
         addDefaultProperties(props);
