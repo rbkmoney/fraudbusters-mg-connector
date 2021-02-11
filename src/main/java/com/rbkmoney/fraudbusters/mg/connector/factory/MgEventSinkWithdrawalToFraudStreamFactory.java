@@ -25,7 +25,7 @@ import java.util.Properties;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MgEventSinkWithdrawalToFraudStreamFactory {
+public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFactory {
 
     @Value("${kafka.topic.source.withdrawal}")
     private String source;
@@ -37,8 +37,10 @@ public class MgEventSinkWithdrawalToFraudStreamFactory {
     private final WithdrawalEventParser eventParser;
     private final RetryTemplate retryTemplate;
     private final WithdrawalSerde withdrawalSerde = new WithdrawalSerde();
+    private final Properties mgWithdrawalEventStreamProperties;
 
-    public KafkaStreams create(final Properties streamsConfiguration) {
+    @Override
+    public KafkaStreams create() {
         try {
             StreamsBuilder builder = new StreamsBuilder();
 
@@ -51,7 +53,7 @@ public class MgEventSinkWithdrawalToFraudStreamFactory {
                     )
                     .to(sink, Produced.with(Serdes.String(), withdrawalSerde));
 
-            return new KafkaStreams(builder.build(), streamsConfiguration);
+            return new KafkaStreams(builder.build(), mgWithdrawalEventStreamProperties);
         } catch (Exception e) {
             log.error("Error when create stream e: ", e);
             throw new StreamInitializationException(e);

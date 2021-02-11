@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MgEventSinkInvoiceToFraudStreamFactory {
+public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory {
 
     @Value("${kafka.topic.source.invoicing}")
     private String readTopic;
@@ -54,8 +54,10 @@ public class MgEventSinkInvoiceToFraudStreamFactory {
     private final PaymentSerde paymentSerde = new PaymentSerde();
     private final RefundSerde refundSerde = new RefundSerde();
     private final ChargebackSerde chargebackSerde = new ChargebackSerde();
+    private final Properties mgInvoiceEventStreamProperties;
 
-    public KafkaStreams create(final Properties streamsConfiguration) {
+    @Override
+    public KafkaStreams create() {
         try {
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, MgEventWrapper>[] branch =
@@ -87,7 +89,7 @@ public class MgEventSinkInvoiceToFraudStreamFactory {
                             refundPaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
                     .to(refundTopic, Produced.with(Serdes.String(), refundSerde));
 
-            return new KafkaStreams(builder.build(), streamsConfiguration);
+            return new KafkaStreams(builder.build(), mgInvoiceEventStreamProperties);
         } catch (Exception e) {
             log.error("WbListStreamFactory error when create stream e: ", e);
             throw new StreamInitializationException(e);

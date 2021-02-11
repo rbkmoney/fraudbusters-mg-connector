@@ -21,6 +21,7 @@ public class KafkaConfig {
     private static final String APP_ID = "fraud-connector";
     private static final String CLIENT_ID = "fraud-connector-client";
     private static final String PKCS_12 = "PKCS12";
+    public static final String PAYOUT_SUFFIX = "-payout";
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
@@ -40,21 +41,37 @@ public class KafkaConfig {
     private int numStreamThreads;
 
     @Bean
-    public Properties mgEventStreamProperties() {
+    public Properties mgInvoiceEventStreamProperties() {
         final Properties props = new Properties();
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, APP_ID);
         props.put(StreamsConfig.CLIENT_ID_CONFIG, CLIENT_ID);
-        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
         props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MachineEventSerde.class);
+        addDefaultProperties(props);
+        props.putAll(sslConfigure());
+        return props;
+    }
+
+    @Bean
+    public Properties mgWithdrawalEventStreamProperties() {
+        final Properties props = new Properties();
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, APP_ID + PAYOUT_SUFFIX);
+        props.put(StreamsConfig.CLIENT_ID_CONFIG, CLIENT_ID + PAYOUT_SUFFIX);
+        props.put(StreamsConfig.DEFAULT_KEY_SERDE_CLASS_CONFIG, Serdes.String().getClass().getName());
+        props.put(StreamsConfig.DEFAULT_VALUE_SERDE_CLASS_CONFIG, MachineEventSerde.class);
+        addDefaultProperties(props);
+        props.putAll(sslConfigure());
+        return props;
+    }
+
+    private void addDefaultProperties(Properties props) {
+        props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(StreamsConfig.COMMIT_INTERVAL_MS_CONFIG, 10 * 1000);
         props.put(StreamsConfig.CACHE_MAX_BYTES_BUFFERING_CONFIG, 0);
         props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
         props.put(StreamsConfig.RETRIES_CONFIG, 5);
         props.put(StreamsConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
         props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
-        props.putAll(sslConfigure());
-        return props;
     }
 
     private Map<String, Object> sslConfigure() {
