@@ -43,23 +43,21 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         InvoicePaymentChangePayload payload = invoicePaymentChange.getPayload();
         InvoicePaymentStatusChanged invoicePaymentStatusChanged = payload.getInvoicePaymentStatusChanged();
 
-        InvoicePaymentWrapper invoicePaymentWrapper = null;
-
-        try {
-            invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(), paymentId, event.getEventId());
-        } catch (Exception e) {
-            log.warn("Problem when get invoice info for event: {} change: {} status: {}", event,
-                    change, change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus());
-            throw e;
-        }
+        InvoicePaymentWrapper invoicePaymentWrapper = invokeHgGetInvoiceInfo(change, event, paymentId);
 
         var invoice = invoicePaymentWrapper.getInvoice();
         var invoicePayment = invoicePaymentWrapper.getInvoicePayment();
 
         Payer payer = invoicePayment.getPayment().getPayer();
-
         PaymentTool paymentTool = generalInfoInitiator.initPaymentTool(payer);
-        Payment payment = new Payment()
+        Payment payment = initPayment(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
+
+        log.debug("InvoicePaymentMapper payment: {}", payment);
+        return payment;
+    }
+
+    private Payment initPayment(MachineEvent event, InvoicePaymentStatusChanged invoicePaymentStatusChanged, com.rbkmoney.damsel.domain.Invoice invoice, InvoicePayment invoicePayment, Payer payer, PaymentTool paymentTool) {
+        return new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
@@ -72,15 +70,6 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
                 .setMobile(isMobile(paymentTool))
                 .setRecurrent(isRecurrent(payer))
                 .setError(generalInfoInitiator.initError(invoicePaymentStatusChanged));
-
-        log.debug("InvoicePaymentMapper payment: {}", payment);
-        return payment;
-    }
-
-    private BiFunction<String, Invoice, Optional<InvoicePayment>> findPayment() {
-        return (id, invoiceInfo) -> invoiceInfo.getPayments().stream()
-                .filter(payment -> payment.isSetPayment() && payment.getPayment().getId().equals(id))
-                .findFirst();
     }
 
     @Override
@@ -88,6 +77,21 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         return InvoiceEventType.INVOICE_PAYMENT_STATUS_CHANGED;
     }
 
+    private InvoicePaymentWrapper invokeHgGetInvoiceInfo(InvoiceChange change, MachineEvent event, String paymentId) {
+        try {
+            return hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(), paymentId, event.getEventId());
+        } catch (Exception e) {
+            log.warn("Problem when get invoice info for event: {} change: {} status: {}", event,
+                    change, change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus());
+            throw e;
+        }
+    }
+
+    private BiFunction<String, Invoice, Optional<InvoicePayment>> findPayment() {
+        return (id, invoiceInfo) -> invoiceInfo.getPayments().stream()
+                .filter(payment -> payment.isSetPayment() && payment.getPayment().getId().equals(id))
+                .findFirst();
+    }
 
     public boolean isRecurrent(Payer payer) {
         return payer.isSetRecurrent() || payer.isSetCustomer();

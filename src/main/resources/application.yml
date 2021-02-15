@@ -25,6 +25,15 @@ service:
   invoicing:
     url: http://hellgate:8022/v1/processing/invoicing
     networkTimeout: 5000
+  withdrawal:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
+  wallet:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
+  destination:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
 
 kafka:
   bootstrap.servers: "localhost:29092"
