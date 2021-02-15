@@ -15,6 +15,7 @@ import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.FistfulClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
+import com.rbkmoney.fraudbusters.mg.connector.utils.WithdrawalModelUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.RequiredArgsConstructor;
@@ -45,25 +46,27 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
     public Withdrawal map(TimestampedChange change, MachineEvent event) {
         log.debug("Withdrawal map from change: {} event: {} ", change, event);
         Withdrawal withdrawal = new Withdrawal();
-        final WithdrawalState withdrawalInfoFromFistful = fistfulClientService.getWithdrawalInfoFromFistful(
+        final WithdrawalState withdrawalInfo = fistfulClientService.getWithdrawalInfoFromFistful(
                 event.getSourceId(), event.getEventId());
-        withdrawalInfoFromFistful.getDestinationId();
-        withdrawal.setCost(fistfulCashToDomainCashConverter.convert(withdrawalInfoFromFistful.getBody()));
+        withdrawalInfo.getDestinationId();
+        withdrawal.setCost(fistfulCashToDomainCashConverter.convert(withdrawalInfo.getBody()));
         withdrawal.setEventTime(event.getCreatedAt());
         withdrawal.setId(event.getSourceId());
         withdrawal.setStatus(TBaseUtil.unionFieldToEnum(
                 change.getChange().getStatusChanged().getStatus(),
                 WithdrawalStatus.class));
 
-        final DestinationState destinationInfoFromFistful = destinationClientService.getDestinationInfoFromFistful(
-                withdrawalInfoFromFistful.getDestinationId());
+        final DestinationState destinationInfo = destinationClientService.getDestinationInfoFromFistful(
+                withdrawalInfo.getDestinationId());
         final WalletState walletInfoFromFistful = walletClientService.getWalletInfoFromFistful(
-                withdrawalInfoFromFistful.getWalletId());
+                withdrawalInfo.getWalletId());
 
         withdrawal.setAccount(fistfulAccountToDomainAccountConverter.convert(walletInfoFromFistful.getAccount()));
 
-        final Resource resource = fistfulResourceToDomainResourceConverter.convert(destinationInfoFromFistful.getResource());
+        final Resource resource = fistfulResourceToDomainResourceConverter.convert(destinationInfo.getResource());
         withdrawal.setDestinationResource(resource);
+        withdrawal.setProviderInfo(WithdrawalModelUtil.initProviderInfo(withdrawalInfo, destinationInfo));
+        withdrawal.setError(WithdrawalModelUtil.initError(change.getChange().getStatusChanged()));
 
         log.debug("InvoicePaymentMapper withdrawal: {}", withdrawal);
         return withdrawal;
@@ -73,5 +76,6 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
     public WithdrawalEventType getChangeType() {
         return WithdrawalEventType.WITHDRAWAL_PAYMENT_CHARGEBACK_STATUS_CHANGED;
     }
+
 
 }
