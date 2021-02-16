@@ -48,7 +48,7 @@ kafka:
   topic:
     source:
       invoicing: mg-event
-      withdrawal: mg-fistfull
+      withdrawal: mg-withdrawal
     sink:
       payment: payment
       refund: refund

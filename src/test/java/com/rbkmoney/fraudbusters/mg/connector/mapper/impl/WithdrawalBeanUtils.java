@@ -25,6 +25,7 @@ public class WithdrawalBeanUtils {
                         .setIssuerCountry(Residence.PAN)
                         .setPaymentSystem(BankCardPaymentSystem.mastercard)
                         .setToken("cardToken")
+                        .setMaskedPan("1232132")
                         .setCardType(CardType.debit)
                         .setCardholderName("CARD HOLDER")));
         return new DestinationState().setResource(resource);

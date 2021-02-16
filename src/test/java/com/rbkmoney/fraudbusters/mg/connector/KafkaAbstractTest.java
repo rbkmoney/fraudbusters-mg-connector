@@ -39,9 +39,11 @@ public abstract class KafkaAbstractTest {
 
     public static final String KAFKA_DOCKER_VERSION = "5.0.1";
     public static final String MG_EVENT = "mg-event";
+    public static final String MG_WITHDRAWAL = "mg-withdrawal";
     public static final String PAYMENT = "payment";
     public static final String REFUND = "refund";
     public static final String CHARGEBACK = "chargeback";
+    public static final String WITHDRAWAL = "withdrawal";
 
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(KAFKA_DOCKER_VERSION).withEmbeddedZookeeper();
@@ -57,6 +59,8 @@ public abstract class KafkaAbstractTest {
             initTopic(PAYMENT);
             initTopic(REFUND);
             initTopic(CHARGEBACK);
+            initTopic(MG_WITHDRAWAL);
+            initTopic(WITHDRAWAL);
         }
 
         private <T> Consumer<String, T> initTopic(String topicName) {
@@ -101,9 +105,9 @@ public abstract class KafkaAbstractTest {
         return new KafkaProducer<>(props);
     }
 
-    void produceMessageToEventSink(SinkEvent sinkEvent) {
+    void produceMessageToEventSink(String topic, SinkEvent sinkEvent) {
         try (Producer<String, SinkEvent> producer = createProducer()) {
-            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(MG_EVENT, sinkEvent.getEvent().getSourceId(), sinkEvent);
+            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, sinkEvent.getEvent().getSourceId(), sinkEvent);
             producer.send(producerRecord).get();
             log.info("produceMessageToEventSink() sinkEvent: {}", sinkEvent);
         } catch (Exception e) {

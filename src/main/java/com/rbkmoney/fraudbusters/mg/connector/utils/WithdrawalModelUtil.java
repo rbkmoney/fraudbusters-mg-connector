@@ -10,26 +10,25 @@ import com.rbkmoney.fistful.withdrawal.status.Failed;
 import com.rbkmoney.geck.serializer.kit.tbase.TBaseProcessor;
 import com.rbkmoney.geck.serializer.kit.tbase.TDomainToStringErrorHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 
 @Slf4j
 public class WithdrawalModelUtil {
 
-    @NonNull
     public static ProviderInfo initProviderInfo(WithdrawalState withdrawalState, DestinationState destinationState) {
         ProviderInfo providerInfo = new ProviderInfo();
         if (withdrawalState.isSetRoute()) {
             providerInfo.setTerminalId(String.valueOf(withdrawalState.getRoute().getTerminalId()));
             providerInfo.setProviderId(String.valueOf(withdrawalState.getRoute().getProviderId()));
+            if (destinationState.getResource().isSetBankCard()
+                    && destinationState.getResource().getBankCard().isSetBankCard()
+                    && destinationState.getResource().getBankCard().getBankCard().isSetIssuerCountry()) {
+                providerInfo.setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
+            }
+            return providerInfo;
         }
-        if (destinationState.getResource().isSetBankCard()
-                && destinationState.getResource().getBankCard().isSetBankCard()
-                && destinationState.getResource().getBankCard().getBankCard().isSetIssuerCountry()) {
-            providerInfo.setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
-        }
-        return providerInfo;
+        return null;
     }
 
     public static Error initError(StatusChange statusChange) {

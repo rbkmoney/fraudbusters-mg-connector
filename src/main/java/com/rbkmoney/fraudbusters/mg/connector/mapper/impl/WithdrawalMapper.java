@@ -68,7 +68,7 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
         withdrawal.setProviderInfo(WithdrawalModelUtil.initProviderInfo(withdrawalInfo, destinationInfo));
         withdrawal.setError(WithdrawalModelUtil.initError(change.getChange().getStatusChanged()));
 
-        log.debug("InvoicePaymentMapper withdrawal: {}", withdrawal);
+        log.debug("Withdrawal map result: {}", withdrawal);
         return withdrawal;
     }
 
