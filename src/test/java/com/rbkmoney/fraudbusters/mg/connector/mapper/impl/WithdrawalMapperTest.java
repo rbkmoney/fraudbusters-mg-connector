@@ -12,7 +12,7 @@ import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCashToDomainCashC
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCurrencyToDomainCurrencyConverter;
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulResourceToDomainResourceConverter;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
-import com.rbkmoney.fraudbusters.mg.connector.service.FistfulClientService;
+import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class WithdrawalMapperTest {
     DestinationClientService destinationClientService;
 
     @MockBean
-    FistfulClientService fistfulClientService;
+    WithdrawalClientService withdrawalClientService;
 
     @MockBean
     WalletClientService walletClientService;
@@ -78,7 +78,7 @@ public class WithdrawalMapperTest {
         withdrawalState.setBody(createCash());
         withdrawalState.setDestinationId(DESTINATION_ID);
         withdrawalState.setWalletId(WALLET_ID);
-        when(fistfulClientService.getWithdrawalInfoFromFistful(SOURCE_ID, EVENT_ID)).thenReturn(withdrawalState);
+        when(withdrawalClientService.getWithdrawalInfoFromFistful(SOURCE_ID, EVENT_ID)).thenReturn(withdrawalState);
         when(walletClientService.getWalletInfoFromFistful(WALLET_ID)).thenReturn(createWallet());
         when(destinationClientService.getDestinationInfoFromFistful(DESTINATION_ID)).thenReturn(createDestinationState());
 

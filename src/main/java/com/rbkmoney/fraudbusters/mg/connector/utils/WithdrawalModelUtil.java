@@ -17,18 +17,18 @@ import java.io.IOException;
 public class WithdrawalModelUtil {
 
     public static ProviderInfo initProviderInfo(WithdrawalState withdrawalState, DestinationState destinationState) {
-        ProviderInfo providerInfo = new ProviderInfo();
-        if (withdrawalState.isSetRoute()) {
-            providerInfo.setTerminalId(String.valueOf(withdrawalState.getRoute().getTerminalId()));
-            providerInfo.setProviderId(String.valueOf(withdrawalState.getRoute().getProviderId()));
-            if (destinationState.getResource().isSetBankCard()
-                    && destinationState.getResource().getBankCard().isSetBankCard()
-                    && destinationState.getResource().getBankCard().getBankCard().isSetIssuerCountry()) {
-                providerInfo.setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
-            }
-            return providerInfo;
+        if (!withdrawalState.isSetRoute()) {
+            return null;
         }
-        return null;
+        ProviderInfo providerInfo = new ProviderInfo();
+        providerInfo.setTerminalId(String.valueOf(withdrawalState.getRoute().getTerminalId()));
+        providerInfo.setProviderId(String.valueOf(withdrawalState.getRoute().getProviderId()));
+        if (destinationState.getResource().isSetBankCard()
+                && destinationState.getResource().getBankCard().isSetBankCard()
+                && destinationState.getResource().getBankCard().getBankCard().isSetIssuerCountry()) {
+            providerInfo.setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
+        }
+        return providerInfo;
     }
 
     public static Error initError(StatusChange statusChange) {

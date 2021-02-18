@@ -13,7 +13,7 @@ import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCashToDomainCashC
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulResourceToDomainResourceConverter;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
-import com.rbkmoney.fraudbusters.mg.connector.service.FistfulClientService;
+import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
 import com.rbkmoney.fraudbusters.mg.connector.utils.WithdrawalModelUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent, Withdrawal> {
 
-    private final FistfulClientService fistfulClientService;
+    private final WithdrawalClientService withdrawalClientService;
     private final DestinationClientService destinationClientService;
     private final WalletClientService walletClientService;
     private final FistfulResourceToDomainResourceConverter fistfulResourceToDomainResourceConverter;
@@ -46,7 +46,7 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
     public Withdrawal map(TimestampedChange change, MachineEvent event) {
         log.debug("Withdrawal map from change: {} event: {} ", change, event);
         Withdrawal withdrawal = new Withdrawal();
-        final WithdrawalState withdrawalInfo = fistfulClientService.getWithdrawalInfoFromFistful(
+        final WithdrawalState withdrawalInfo = withdrawalClientService.getWithdrawalInfoFromFistful(
                 event.getSourceId(), event.getEventId());
         withdrawalInfo.getDestinationId();
         withdrawal.setCost(fistfulCashToDomainCashConverter.convert(withdrawalInfo.getBody()));

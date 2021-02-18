@@ -1,5 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.factory;
 
+import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fistful.withdrawal.TimestampedChange;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.WithdrawalMapper;
@@ -32,12 +33,13 @@ public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFacto
     @Value("${kafka.topic.sink.withdrawal}")
     private String sink;
 
-    private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
     private final WithdrawalMapper withdrawalMapper;
     private final EventParser<TimestampedChange> withdrawalEventParser;
     private final RetryTemplate retryTemplate;
-    private final WithdrawalSerde withdrawalSerde = new WithdrawalSerde();
     private final Properties mgWithdrawalEventStreamProperties;
+
+    private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
+    private final Serde<Withdrawal> withdrawalSerde = new WithdrawalSerde();
 
     @Override
     public KafkaStreams create() {

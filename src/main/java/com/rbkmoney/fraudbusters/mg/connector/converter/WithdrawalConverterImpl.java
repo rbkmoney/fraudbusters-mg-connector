@@ -19,7 +19,7 @@ public class WithdrawalConverterImpl implements BinaryConverter<TimestampedChang
         try {
             tDeserializerThreadLocal.get().deserialize(event, bin);
         } catch (TException e) {
-            log.error("BinaryConverterImpl e: ", e);
+            log.error("Error when convert TimestampedChange e: ", e);
         }
         return event;
     }

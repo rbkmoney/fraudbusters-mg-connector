@@ -14,20 +14,20 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FistfulClientService {
+public class WithdrawalClientService {
 
-    private final ManagementSrv.Iface fistfulClient;
+    private final ManagementSrv.Iface withdrawalClient;
     private final FistfulEventRangeFactory fistfulEventRangeFactory;
 
     public WithdrawalState getWithdrawalInfoFromFistful(String eventId, long sequenceId) {
         try {
-            final WithdrawalState withdrawalState = fistfulClient.get(eventId, fistfulEventRangeFactory.create(sequenceId));
+            final WithdrawalState withdrawalState = withdrawalClient.get(eventId, fistfulEventRangeFactory.create(sequenceId));
             if (withdrawalState == null) {
                 throw new PaymentInfoNotFoundException("Not found invoice info in hg!");
             }
             return withdrawalState;
         } catch (TException e) {
-            log.error("Error when HgClientService getInvoiceInfo eventId: {} sequenceId: {} e: ", eventId, sequenceId, e);
+            log.error("Error when getWithdrawalInfoFromFistful eventId: {} sequenceId: {} e: ", eventId, sequenceId, e);
             throw new PaymentInfoRequestException(e);
         }
     }

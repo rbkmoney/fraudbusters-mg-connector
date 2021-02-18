@@ -26,7 +26,7 @@ public class DestinationClientService {
             }
             return destinationState;
         } catch (TException e) {
-            log.error("Error when HgClientService getInvoiceInfo eventId: {} e: ", eventId, e);
+            log.error("Error when getDestinationInfoFromFistful eventId: {} e: ", eventId, e);
             throw new PaymentInfoRequestException(e);
         }
     }

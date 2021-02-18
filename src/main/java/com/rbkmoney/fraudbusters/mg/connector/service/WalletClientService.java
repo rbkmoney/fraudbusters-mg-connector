@@ -6,7 +6,6 @@ import com.rbkmoney.fistful.wallet.ManagementSrv;
 import com.rbkmoney.fistful.wallet.WalletState;
 import com.rbkmoney.fraudbusters.mg.connector.exception.PaymentInfoNotFoundException;
 import com.rbkmoney.fraudbusters.mg.connector.exception.PaymentInfoRequestException;
-import com.rbkmoney.fraudbusters.mg.connector.factory.FistfulEventRangeFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.thrift.TException;
@@ -27,7 +26,7 @@ public class WalletClientService {
             }
             return walletState;
         } catch (TException e) {
-            log.error("Error when HgClientService getInvoiceInfo eventId: {} e: ", eventId, e);
+            log.error("Error when getWalletInfoFromFistful eventId: {} e: ", eventId, e);
             throw new PaymentInfoRequestException(e);
         }
     }

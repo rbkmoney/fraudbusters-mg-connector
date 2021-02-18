@@ -52,7 +52,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         PaymentTool paymentTool = generalInfoInitiator.initPaymentTool(payer);
         Payment payment = initPayment(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
 
-        log.debug("InvoicePaymentMapper payment: {}", payment);
+        log.debug("Map payment: {}", payment);
         return payment;
     }
 

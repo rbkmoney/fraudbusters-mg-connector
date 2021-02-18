@@ -23,7 +23,7 @@ public class HgConfig {
 
 
     @Bean
-    public ManagementSrv.Iface fistfulClient(
+    public ManagementSrv.Iface withdrawalClient(
             @Value("${service.withdrawal.url}") Resource resource,
             @Value("${service.withdrawal.networkTimeout}") int networkTimeout) throws IOException {
         return new THSpawnClientBuilder()

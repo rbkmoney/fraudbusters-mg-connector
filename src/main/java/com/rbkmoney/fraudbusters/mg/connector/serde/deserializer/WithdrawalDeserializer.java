@@ -25,7 +25,7 @@ public class WithdrawalDeserializer implements Deserializer<Withdrawal> {
         try {
             tDeserializerThreadLocal.get().deserialize(withdrawal, data);
         } catch (Exception e) {
-            log.error("Error when deserialize ruleTemplate data: {} ", data, e);
+            log.error("Error when deserialize withdrawal data: {} ", data, e);
         }
         return withdrawal;
     }
