@@ -100,7 +100,7 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
         List<SinkEvent> sinkEvents = WithdrawalFlowGenerator.generateSuccessFlow(SOURCE_ID);
         sinkEvents.forEach(sinkEvent -> produceMessageToEventSink(MG_WITHDRAWAL, sinkEvent));
 
-        checkMessageInTopic(WITHDRAWAL, WithdrawalDeserializer.class, 4);
+        checkMessageInTopic(WITHDRAWAL, WithdrawalDeserializer.class, 2);
     }
 
     private void checkMessageInTopic(String topicName, Class<?> clazz, int size) throws InterruptedException {
