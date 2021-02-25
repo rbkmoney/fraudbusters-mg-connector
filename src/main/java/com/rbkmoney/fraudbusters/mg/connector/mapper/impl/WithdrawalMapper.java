@@ -13,13 +13,14 @@ import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCashToDomainCashC
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulResourceToDomainResourceConverter;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
-import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
+import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.utils.WithdrawalModelUtil;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -44,7 +45,6 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
 
     @Override
     public Withdrawal map(TimestampedChange change, MachineEvent event) {
-        log.debug("Withdrawal map from change: {} event: {} ", change, event);
         Withdrawal withdrawal = new Withdrawal();
         final WithdrawalState withdrawalInfo = withdrawalClientService.getWithdrawalInfoFromFistful(
                 event.getSourceId(), event.getEventId());
@@ -67,8 +67,6 @@ public class WithdrawalMapper implements Mapper<TimestampedChange, MachineEvent,
         withdrawal.setDestinationResource(resource);
         withdrawal.setProviderInfo(WithdrawalModelUtil.initProviderInfo(withdrawalInfo, destinationInfo));
         withdrawal.setError(WithdrawalModelUtil.initError(change.getChange().getStatusChanged()));
-
-        log.debug("Withdrawal map result: {}", withdrawal);
         return withdrawal;
     }
 

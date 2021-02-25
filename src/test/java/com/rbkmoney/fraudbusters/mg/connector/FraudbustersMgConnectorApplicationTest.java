@@ -41,7 +41,7 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FraudbustersMgConnectorApplication.class)
+@SpringBootTest(classes = FraudbustersMgConnectorApplication.class, properties = {"stream.withdrawal.debug=false"})
 public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
 
     public static final String SOURCE_ID = "source_id";

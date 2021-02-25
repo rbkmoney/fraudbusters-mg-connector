@@ -54,3 +54,7 @@ kafka:
       refund: refund
       chargeback: chargeback
       withdrawal: withdrawal
+
+stream:
+  withdrawal:
+    debug: false

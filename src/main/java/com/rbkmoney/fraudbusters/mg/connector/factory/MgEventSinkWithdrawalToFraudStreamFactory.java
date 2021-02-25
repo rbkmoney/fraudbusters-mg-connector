@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.mg.connector.factory;
 import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fistful.withdrawal.TimestampedChange;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.WithdrawalMapper;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.parser.EventParser;
 import com.rbkmoney.fraudbusters.mg.connector.serde.MachineEventSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.WithdrawalSerde;
@@ -33,7 +33,7 @@ public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFacto
     @Value("${kafka.topic.sink.withdrawal}")
     private String sink;
 
-    private final WithdrawalMapper withdrawalMapper;
+    private final Mapper<TimestampedChange, MachineEvent, Withdrawal> logWithdrawalMapperDecorator;
     private final EventParser<TimestampedChange> withdrawalEventParser;
     private final RetryTemplate retryTemplate;
     private final Properties mgWithdrawalEventStreamProperties;
@@ -50,9 +50,10 @@ public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFacto
                     .mapValues(machineEvent -> Map.entry(machineEvent, withdrawalEventParser.parseEvent(machineEvent)))
                     .filter((s, entry) -> filterChange(entry))
                     .mapValues(entry -> retryTemplate.execute(args ->
-                                    withdrawalMapper.map(entry.getValue(), entry.getKey())
+                                    logWithdrawalMapperDecorator.map(entry.getValue(), entry.getKey())
                             )
                     )
+                    .filter((s, withdrawal) -> withdrawal != null)
                     .to(sink, Produced.with(Serdes.String(), withdrawalSerde));
 
             return new KafkaStreams(builder.build(), mgWithdrawalEventStreamProperties);

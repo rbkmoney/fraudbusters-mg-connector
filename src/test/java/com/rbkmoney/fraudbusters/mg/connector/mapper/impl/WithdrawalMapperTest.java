@@ -11,6 +11,7 @@ import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulAccountToDomainAc
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCashToDomainCashConverter;
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCurrencyToDomainCurrencyConverter;
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulResourceToDomainResourceConverter;
+import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.when;
         FistfulCashToDomainCashConverter.class,
         FistfulCurrencyToDomainCurrencyConverter.class,
         FistfulResourceToDomainResourceConverter.class,
+        LogWithdrawalMapperDecorator.class,
         WithdrawalMapper.class})
 public class WithdrawalMapperTest {
 
@@ -52,17 +54,17 @@ public class WithdrawalMapperTest {
     WalletClientService walletClientService;
 
     @Autowired
-    WithdrawalMapper withdrawalMapper;
+    Mapper<TimestampedChange, MachineEvent, Withdrawal> logWithdrawalMapperDecorator;
 
     @Test
     public void accept() {
         final Status failed = Status.failed(new Failed());
         TimestampedChange timestampedChange = createStatusCahnge(failed);
-        boolean accept = withdrawalMapper.accept(timestampedChange);
+        boolean accept = logWithdrawalMapperDecorator.accept(timestampedChange);
         assertTrue(accept);
 
         timestampedChange = createStatusCahnge(Status.pending(new Pending()));
-        accept = withdrawalMapper.accept(timestampedChange);
+        accept = logWithdrawalMapperDecorator.accept(timestampedChange);
         assertFalse(accept);
     }
 
@@ -82,7 +84,7 @@ public class WithdrawalMapperTest {
         when(walletClientService.getWalletInfoFromFistful(WALLET_ID)).thenReturn(createWallet());
         when(destinationClientService.getDestinationInfoFromFistful(DESTINATION_ID)).thenReturn(createDestinationState());
 
-        final Withdrawal map = withdrawalMapper.map(timestampedChange, event);
+        final Withdrawal map = logWithdrawalMapperDecorator.map(timestampedChange, event);
 
         assertEquals(RUB, map.getCost().getCurrency().symbolic_code);
         assertEquals(WithdrawalStatus.failed, map.getStatus());
