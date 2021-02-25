@@ -65,7 +65,7 @@ public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFacto
 
     private boolean filterChange(Map.Entry<MachineEvent, TimestampedChange> entry) {
         log.debug("filterChange entry: {}", entry);
-        return entry.getValue().isSetChange();
+        return entry.getValue().isSetChange() && logWithdrawalMapperDecorator.accept(entry.getValue());
     }
 
 }
