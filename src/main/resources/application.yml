@@ -25,6 +25,15 @@ service:
   invoicing:
     url: http://hellgate:8022/v1/processing/invoicing
     networkTimeout: 5000
+  withdrawal:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
+  wallet:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
+  destination:
+    url: http://hellgate:8022/v1/processing/invoicing
+    networkTimeout: 5000
 
 kafka:
   bootstrap.servers: "localhost:29092"
@@ -37,7 +46,15 @@ kafka:
     server-password: kenny12
     server-keystore-location: src/main/resources/cert/truststore.p12
   topic:
-    mg-event: mg-event
-    payment: payment
-    refund: refund
-    chargeback: chargeback
+    source:
+      invoicing: mg-event
+      withdrawal: mg-withdrawal
+    sink:
+      payment: payment
+      refund: refund
+      chargeback: chargeback
+      withdrawal: withdrawal
+
+stream:
+  withdrawal:
+    debug: false

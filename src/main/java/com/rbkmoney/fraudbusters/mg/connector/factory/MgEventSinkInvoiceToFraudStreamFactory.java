@@ -4,10 +4,10 @@ import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
-import com.rbkmoney.fraudbusters.mg.connector.mapper.SourceEventParser;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.ChargebackPaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.PaymentMapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.RefundPaymentMapper;
+import com.rbkmoney.fraudbusters.mg.connector.parser.EventParser;
 import com.rbkmoney.fraudbusters.mg.connector.serde.ChargebackSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.MachineEventSerde;
 import com.rbkmoney.fraudbusters.mg.connector.serde.PaymentSerde;
@@ -33,34 +33,36 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class MgEventSinkToFraudStreamFactory {
+public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory {
 
-    @Value("${kafka.topic.mg-event}")
+    @Value("${kafka.topic.source.invoicing}")
     private String readTopic;
-    @Value("${kafka.topic.refund}")
+    @Value("${kafka.topic.sink.refund}")
     private String refundTopic;
-    @Value("${kafka.topic.payment}")
+    @Value("${kafka.topic.sink.payment}")
     private String paymentTopic;
-    @Value("${kafka.topic.chargeback}")
+    @Value("${kafka.topic.sink.chargeback}")
     private String chargebackTopic;
 
     private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
     private final PaymentMapper paymentMapper;
     private final ChargebackPaymentMapper chargebackPaymentMapper;
     private final RefundPaymentMapper refundPaymentMapper;
-    private final SourceEventParser eventParser;
+    private final EventParser<EventPayload> paymentEventParser;
     private final RetryTemplate retryTemplate;
 
     private final PaymentSerde paymentSerde = new PaymentSerde();
     private final RefundSerde refundSerde = new RefundSerde();
     private final ChargebackSerde chargebackSerde = new ChargebackSerde();
+    private final Properties mgInvoiceEventStreamProperties;
 
-    public KafkaStreams create(final Properties streamsConfiguration) {
+    @Override
+    public KafkaStreams create() {
         try {
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, MgEventWrapper>[] branch =
                     builder.stream(readTopic, Consumed.with(Serdes.String(), machineEventSerde))
-                            .mapValues(machineEvent -> Map.entry(machineEvent, eventParser.parseEvent(machineEvent)))
+                            .mapValues(machineEvent -> Map.entry(machineEvent, paymentEventParser.parseEvent(machineEvent)))
                             .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .filter((s, entry) -> entry.getValue().isSetInvoiceChanges())
                             .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
@@ -87,7 +89,7 @@ public class MgEventSinkToFraudStreamFactory {
                             refundPaymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
                     .to(refundTopic, Produced.with(Serdes.String(), refundSerde));
 
-            return new KafkaStreams(builder.build(), streamsConfiguration);
+            return new KafkaStreams(builder.build(), mgInvoiceEventStreamProperties);
         } catch (Exception e) {
             log.error("WbListStreamFactory error when create stream e: ", e);
             throw new StreamInitializationException(e);

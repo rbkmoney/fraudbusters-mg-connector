@@ -9,7 +9,6 @@ import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.geck.serializer.kit.mock.MockMode;
 import com.rbkmoney.geck.serializer.kit.mock.MockTBaseProcessor;
 import com.rbkmoney.geck.serializer.kit.tbase.TBaseHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -80,7 +79,6 @@ public class BuildUtils {
                         .setSessions(Collections.emptyList()));
     }
 
-    @NotNull
     public static List<FinalCashFlowPosting> createCashFlow(long l, long l2) {
         return List.of(
                 payment(l),
@@ -91,7 +89,6 @@ public class BuildUtils {
                 incorrectPosting(99_999L));
     }
 
-    @NotNull
     public static List<FinalCashFlowPosting> createReversedCashFlow(long l, long l2) {
         return List.of(
                 reversedPayment(l),
