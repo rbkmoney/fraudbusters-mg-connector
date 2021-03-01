@@ -35,8 +35,10 @@ public class FistfulResourceToDomainResourceConverter implements Converter<com.r
     private BankCard convertBankCard(com.rbkmoney.fistful.base.BankCard bankCardFrom) {
         final BankCard bankCard = new BankCard();
         bankCard.setToken(bankCardFrom.getToken());
-        bankCard.setIssuerCountry(Residence.valueOf(bankCardFrom.getIssuerCountry().name()));
-        bankCard.setPaymentSystem(BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name()));
+        bankCard.setIssuerCountry(bankCardFrom.isSetIssuerCountry() ?
+                Residence.valueOf(bankCardFrom.getIssuerCountry().name()) : null);
+        bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem() ?
+                BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name()) : null);
         bankCard.setLastDigits(bankCardFrom.getMaskedPan());
         bankCard.setBin(bankCardFrom.getBin());
         bankCard.setCategory(bankCardFrom.getCategory());
