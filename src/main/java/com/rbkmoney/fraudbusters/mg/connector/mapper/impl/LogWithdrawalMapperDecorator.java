@@ -7,16 +7,12 @@ import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class LogWithdrawalMapperDecorator implements Mapper<TimestampedChange, MachineEvent, Withdrawal> {
-
-    @Value("${stream.withdrawal.debug:false}")
-    private boolean isDebug;
 
     private final WithdrawalMapper withdrawalMapper;
 
@@ -30,9 +26,6 @@ public class LogWithdrawalMapperDecorator implements Mapper<TimestampedChange, M
         log.debug("Withdrawal map from change: {} event: {} ", change, event);
         Withdrawal withdrawal = withdrawalMapper.map(change, event);
         log.debug("Withdrawal map result: {}", withdrawal);
-        if (isDebug) {
-            return null;
-        }
         return withdrawal;
     }
 
