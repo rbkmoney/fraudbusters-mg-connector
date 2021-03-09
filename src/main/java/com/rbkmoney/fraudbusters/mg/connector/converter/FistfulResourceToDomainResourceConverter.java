@@ -17,12 +17,14 @@ public class FistfulResourceToDomainResourceConverter implements Converter<com.r
     @Override
     public Resource convert(com.rbkmoney.fistful.base.Resource fistfulResource) {
         log.debug("Start convert fistfulResource : {}", fistfulResource);
-        final Resource resource = new Resource();
+        Resource resource = new Resource();
         if (fistfulResource.isSetBankCard()) {
-            final BankCard bankCard = convertBankCard(fistfulResource.getBankCard().getBankCard());
+            BankCard bankCard = convertBankCard(fistfulResource.getBankCard().getBankCard());
             resource.setBankCard(bankCard);
         } else if (fistfulResource.isSetCryptoWallet()) {
-            final CryptoWallet cryptoWallet = new CryptoWallet();
+            CryptoWallet cryptoWallet = new CryptoWallet()
+                    .setId(fistfulResource.getCryptoWallet().getCryptoWallet().getId())
+                    .setCurrency(fistfulResource.getCryptoWallet().getCryptoWallet().getCurrency().name());
             resource.setCryptoWallet(cryptoWallet);
         } else {
             log.error("Unknown resource type: {}", fistfulResource);
@@ -33,7 +35,7 @@ public class FistfulResourceToDomainResourceConverter implements Converter<com.r
     }
 
     private BankCard convertBankCard(com.rbkmoney.fistful.base.BankCard bankCardFrom) {
-        final BankCard bankCard = new BankCard();
+        BankCard bankCard = new BankCard();
         bankCard.setToken(bankCardFrom.getToken());
         bankCard.setIssuerCountry(bankCardFrom.isSetIssuerCountry() ?
                 Residence.valueOf(bankCardFrom.getIssuerCountry().name()) : null);
