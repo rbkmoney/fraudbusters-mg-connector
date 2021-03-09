@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 public class FistfulResourceToDomainResourceConverter implements Converter<com.rbkmoney.fistful.base.Resource, Resource> {
 
     public static final BankCardPaymentSystem DEAFAULT_PAYMENT_SYSTEM = BankCardPaymentSystem.visa;
+    public static final String UNKNOWN = "UNKNOWN";
 
     @Override
     public Resource convert(com.rbkmoney.fistful.base.Resource fistfulResource) {
@@ -43,8 +44,8 @@ public class FistfulResourceToDomainResourceConverter implements Converter<com.r
                 Residence.valueOf(bankCardFrom.getIssuerCountry().name()) : null);
         bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem() ?
                 BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name()) : DEAFAULT_PAYMENT_SYSTEM);
-        bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null ? bankCardFrom.getMaskedPan() : "UNKNOWN");
-        bankCard.setBin(bankCardFrom.getBin() != null ? bankCardFrom.getBin() : "UNKNOWN");
+        bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null ? bankCardFrom.getMaskedPan() : UNKNOWN);
+        bankCard.setBin(bankCardFrom.getBin() != null ? bankCardFrom.getBin() : UNKNOWN);
         bankCard.setCategory(bankCardFrom.getCategory());
         bankCard.setBankName(bankCardFrom.getBankName());
         return bankCard;
