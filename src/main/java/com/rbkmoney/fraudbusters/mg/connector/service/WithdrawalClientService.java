@@ -21,7 +21,8 @@ public class WithdrawalClientService {
 
     public WithdrawalState getWithdrawalInfoFromFistful(String eventId, long sequenceId) {
         try {
-            final WithdrawalState withdrawalState = withdrawalClient.get(eventId, fistfulEventRangeFactory.create(sequenceId));
+            final WithdrawalState withdrawalState =
+                    withdrawalClient.get(eventId, fistfulEventRangeFactory.create(sequenceId));
             if (withdrawalState == null) {
                 throw new PaymentInfoNotFoundException("Not found invoice info in hg!");
             }

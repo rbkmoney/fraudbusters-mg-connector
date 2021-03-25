@@ -35,6 +35,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory {
 
+    private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
+    private final PaymentMapper paymentMapper;
+    private final ChargebackPaymentMapper chargebackPaymentMapper;
+    private final RefundPaymentMapper refundPaymentMapper;
+    private final EventParser<EventPayload> paymentEventParser;
+    private final RetryTemplate retryTemplate;
+    private final PaymentSerde paymentSerde = new PaymentSerde();
+    private final RefundSerde refundSerde = new RefundSerde();
+    private final ChargebackSerde chargebackSerde = new ChargebackSerde();
+    private final Properties mgInvoiceEventStreamProperties;
     @Value("${kafka.topic.source.invoicing}")
     private String readTopic;
     @Value("${kafka.topic.sink.refund}")
@@ -44,28 +54,19 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
     @Value("${kafka.topic.sink.chargeback}")
     private String chargebackTopic;
 
-    private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
-    private final PaymentMapper paymentMapper;
-    private final ChargebackPaymentMapper chargebackPaymentMapper;
-    private final RefundPaymentMapper refundPaymentMapper;
-    private final EventParser<EventPayload> paymentEventParser;
-    private final RetryTemplate retryTemplate;
-
-    private final PaymentSerde paymentSerde = new PaymentSerde();
-    private final RefundSerde refundSerde = new RefundSerde();
-    private final ChargebackSerde chargebackSerde = new ChargebackSerde();
-    private final Properties mgInvoiceEventStreamProperties;
-
     @Override
     public KafkaStreams create() {
         try {
             StreamsBuilder builder = new StreamsBuilder();
             KStream<String, MgEventWrapper>[] branch =
                     builder.stream(readTopic, Consumed.with(Serdes.String(), machineEventSerde))
-                            .mapValues(machineEvent -> Map.entry(machineEvent, paymentEventParser.parseEvent(machineEvent)))
-                            .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
+                            .mapValues(machineEvent -> Map
+                                    .entry(machineEvent, paymentEventParser.parseEvent(machineEvent)))
+                            .peek((s, payment) -> log
+                                    .debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .filter((s, entry) -> entry.getValue().isSetInvoiceChanges())
-                            .peek((s, payment) -> log.debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
+                            .peek((s, payment) -> log
+                                    .debug("MgEventSinkToFraudStreamFactory machineEvent: {}", payment))
                             .flatMapValues(entry -> entry.getValue().getInvoiceChanges().stream()
                                     .map(invoiceChange -> wrapMgEvent(entry, invoiceChange))
                                     .collect(Collectors.toList()))

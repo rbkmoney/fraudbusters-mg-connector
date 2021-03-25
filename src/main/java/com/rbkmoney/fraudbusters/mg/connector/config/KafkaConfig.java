@@ -18,11 +18,10 @@ import java.util.Properties;
 @Configuration
 public class KafkaConfig {
 
+    public static final String WITHDRAWAL_SUFFIX = "-withdrawal";
     private static final String APP_ID = "fraud-connector";
     private static final String CLIENT_ID = "fraud-connector-client";
     private static final String PKCS_12 = "PKCS12";
-    public static final String WITHDRAWAL_SUFFIX = "-withdrawal";
-
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
     @Value("${kafka.ssl.server-password}")
@@ -71,7 +70,8 @@ public class KafkaConfig {
         props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, numStreamThreads);
         props.put(StreamsConfig.RETRIES_CONFIG, 5);
         props.put(StreamsConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
-        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG, LogAndFailExceptionHandler.class);
+        props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
+                LogAndFailExceptionHandler.class);
     }
 
     private Map<String, Object> sslConfigure() {

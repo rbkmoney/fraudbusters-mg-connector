@@ -7,7 +7,6 @@ import com.rbkmoney.damsel.domain.InvoiceStatus;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.payment_processing.InvoicingSrv;
 import com.rbkmoney.fraudbusters.mg.connector.deserializer.SinkEventDeserializer;
-import com.rbkmoney.fraudbusters.mg.connector.factory.EventRangeFactory;
 import com.rbkmoney.fraudbusters.mg.connector.serde.deserializer.PaymentDeserializer;
 import com.rbkmoney.fraudbusters.mg.connector.utils.BuildUtils;
 import com.rbkmoney.fraudbusters.mg.connector.utils.MgEventSinkFlowGenerator;
@@ -24,7 +23,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -47,8 +45,30 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest(classes = FraudbustersMgConnectorApplication.class)
 public class IntegrationTest extends KafkaAbstractTest {
 
+    private static final String PKCS_12 = "PKCS12";
     @MockBean
     InvoicingSrv.Iface invoicingClient;
+
+    public static <T> Consumer<String, T> createConsumerRemote() {
+        Properties props = new Properties();
+        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
+        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG,
+                new File("src/test/resources/broker/pcsng-kafka.p12").getAbsolutePath());
+        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "xxx");
+        props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS_12);
+        props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, PKCS_12);
+        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG,
+                new File("src/test/resources/broker/strug.p12").getAbsolutePath());
+        props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "xxx");
+        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "xxx");
+        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "dev-kafka-mirror.bst1.rbkmoney.net:9092");
+        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SinkEventDeserializer.class);
+        props.put(ConsumerConfig.GROUP_ID_CONFIG, "fraud-connector");
+        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5);
+        return new KafkaConsumer<>(props);
+    }
 
     @Test
     public void contextLoads() throws TException, IOException, InterruptedException {
@@ -56,7 +76,8 @@ public class IntegrationTest extends KafkaAbstractTest {
                 .thenThrow(new RuntimeException())
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         "sourceId", "1", "1", "1",
-                        InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
+                        InvoiceStatus.paid(new InvoicePaid()),
+                        InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
         int size = rewriteDataFromRealTopic();
 
         Consumer<String, Payment> consumerPayment = createPaymentConsumer(PaymentDeserializer.class);
@@ -100,26 +121,5 @@ public class IntegrationTest extends KafkaAbstractTest {
         Thread.sleep(2000L);
 
         return i;
-    }
-
-    private static final String PKCS_12 = "PKCS12";
-
-    public static <T> Consumer<String, T> createConsumerRemote() {
-        Properties props = new Properties();
-        props.put(CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL");
-        props.put(SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, new File("src/test/resources/broker/pcsng-kafka.p12").getAbsolutePath());
-        props.put(SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG, "xxx");
-        props.put(SslConfigs.SSL_KEYSTORE_TYPE_CONFIG, PKCS_12);
-        props.put(SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG, PKCS_12);
-        props.put(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG, new File("src/test/resources/broker/strug.p12").getAbsolutePath());
-        props.put(SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG, "xxx");
-        props.put(SslConfigs.SSL_KEY_PASSWORD_CONFIG, "xxx");
-        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "dev-kafka-mirror.bst1.rbkmoney.net:9092");
-        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SinkEventDeserializer.class);
-        props.put(ConsumerConfig.GROUP_ID_CONFIG, "fraud-connector");
-        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5);
-        return new KafkaConsumer<>(props);
     }
 }

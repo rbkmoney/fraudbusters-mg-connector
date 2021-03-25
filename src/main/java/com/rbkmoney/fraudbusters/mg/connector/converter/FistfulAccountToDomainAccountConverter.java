@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class FistfulAccountToDomainAccountConverter implements Converter<com.rbkmoney.fistful.account.Account, Account> {
+public class FistfulAccountToDomainAccountConverter
+        implements Converter<com.rbkmoney.fistful.account.Account, Account> {
 
     private final FistfulCurrencyToDomainCurrencyConverter convertCurrency;
 

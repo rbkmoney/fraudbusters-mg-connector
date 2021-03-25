@@ -15,7 +15,8 @@ public class HgConfig {
 
     @Bean
     public InvoicingSrv.Iface invoicingClient(@Value("${service.invoicing.url}") Resource resource,
-                                              @Value("${service.invoicing.networkTimeout}") int networkTimeout) throws IOException {
+                                              @Value("${service.invoicing.networkTimeout}") int networkTimeout)
+            throws IOException {
         return new THSpawnClientBuilder()
                 .withNetworkTimeout(networkTimeout)
                 .withAddress(resource.getURI()).build(InvoicingSrv.Iface.class);

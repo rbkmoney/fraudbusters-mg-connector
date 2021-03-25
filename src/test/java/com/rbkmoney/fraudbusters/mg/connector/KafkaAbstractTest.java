@@ -48,34 +48,6 @@ public abstract class KafkaAbstractTest {
     @ClassRule
     public static KafkaContainer kafka = new KafkaContainer(KAFKA_DOCKER_VERSION).withEmbeddedZookeeper();
 
-    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
-        @Override
-        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
-            TestPropertyValues
-                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
-                    .applyTo(configurableApplicationContext.getEnvironment());
-            initTopic(MG_EVENT);
-            initTopic(PAYMENT);
-            initTopic(REFUND);
-            initTopic(CHARGEBACK);
-            initTopic(MG_WITHDRAWAL);
-            initTopic(WITHDRAWAL);
-        }
-
-        private <T> Consumer<String, T> initTopic(String topicName) {
-            Consumer<String, T> consumer = createConsumer();
-            try {
-                consumer.subscribe(Collections.singletonList(topicName));
-                consumer.poll(Duration.ofSeconds(1));
-            } catch (Exception e) {
-                log.error("KafkaAbstractTest initialize e: ", e);
-            }
-            consumer.close();
-            return consumer;
-        }
-    }
-
     public static <T> Consumer<String, T> createConsumer() {
         Properties props = new Properties();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafka.getBootstrapServers());
@@ -107,11 +79,40 @@ public abstract class KafkaAbstractTest {
 
     void produceMessageToEventSink(String topic, SinkEvent sinkEvent) {
         try (Producer<String, SinkEvent> producer = createProducer()) {
-            ProducerRecord<String, SinkEvent> producerRecord = new ProducerRecord<>(topic, sinkEvent.getEvent().getSourceId(), sinkEvent);
+            ProducerRecord<String, SinkEvent> producerRecord =
+                    new ProducerRecord<>(topic, sinkEvent.getEvent().getSourceId(), sinkEvent);
             producer.send(producerRecord).get();
             log.info("produceMessageToEventSink() sinkEvent: {}", sinkEvent);
         } catch (Exception e) {
             log.error("Error when produceMessageToEventSink e:", e);
+        }
+    }
+
+    public static class Initializer implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+        @Override
+        public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+            TestPropertyValues
+                    .of("kafka.bootstrap.servers=" + kafka.getBootstrapServers())
+                    .applyTo(configurableApplicationContext.getEnvironment());
+            initTopic(MG_EVENT);
+            initTopic(PAYMENT);
+            initTopic(REFUND);
+            initTopic(CHARGEBACK);
+            initTopic(MG_WITHDRAWAL);
+            initTopic(WITHDRAWAL);
+        }
+
+        private <T> Consumer<String, T> initTopic(String topicName) {
+            Consumer<String, T> consumer = createConsumer();
+            try {
+                consumer.subscribe(Collections.singletonList(topicName));
+                consumer.poll(Duration.ofSeconds(1));
+            } catch (Exception e) {
+                log.error("KafkaAbstractTest initialize e: ", e);
+            }
+            consumer.close();
+            return consumer;
         }
     }
 }

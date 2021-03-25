@@ -12,7 +12,8 @@ import java.util.Map;
 @Slf4j
 public class MachineEventDeserializer implements Deserializer<MachineEvent> {
 
-    ThreadLocal<TDeserializer> tDeserializerThreadLocal = ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
+    ThreadLocal<TDeserializer> thriftDeserializerThreadLocal =
+            ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -24,7 +25,7 @@ public class MachineEventDeserializer implements Deserializer<MachineEvent> {
         log.debug("Message, topic: {}, byteLength: {}", topic, data.length);
         SinkEvent machineEvent = new SinkEvent();
         try {
-            tDeserializerThreadLocal.get().deserialize(machineEvent, data);
+            thriftDeserializerThreadLocal.get().deserialize(machineEvent, data);
         } catch (Exception e) {
             log.error("Error when deserialize ruleTemplate data: {} ", data, e);
         }
@@ -33,7 +34,7 @@ public class MachineEventDeserializer implements Deserializer<MachineEvent> {
 
     @Override
     public void close() {
-
+        thriftDeserializerThreadLocal.remove();
     }
 
 }

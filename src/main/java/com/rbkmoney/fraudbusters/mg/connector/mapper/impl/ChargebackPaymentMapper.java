@@ -45,9 +45,11 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
 
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
-        InvoicePaymentChargebackChange invoicePaymentChargebackChange = invoicePaymentChange.getPayload().getInvoicePaymentChargebackChange();
+        InvoicePaymentChargebackChange invoicePaymentChargebackChange =
+                invoicePaymentChange.getPayload().getInvoicePaymentChargebackChange();
         InvoicePaymentChargebackChangePayload payload = invoicePaymentChargebackChange.getPayload();
-        InvoicePaymentChargebackStatusChanged invoicePaymentChargebackStatusChanged = payload.getInvoicePaymentChargebackStatusChanged();
+        InvoicePaymentChargebackStatusChanged invoicePaymentChargebackStatusChanged =
+                payload.getInvoicePaymentChargebackStatusChanged();
 
         String chargebackId = invoicePaymentChargebackChange.getId();
         InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(),
@@ -59,7 +61,8 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
         Payer payer = invoicePayment.getPayment().getPayer();
 
         Chargeback chargeback = new Chargeback()
-                .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentChargebackStatusChanged.getStatus(), ChargebackStatus.class))
+                .setStatus(TBaseUtil
+                        .unionFieldToEnum(invoicePaymentChargebackStatusChanged.getStatus(), ChargebackStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
@@ -75,10 +78,13 @@ public class ChargebackPaymentMapper implements Mapper<InvoiceChange, MachineEve
                 .filter(chargebackVal -> chargebackVal.getChargeback().getId().equals(chargebackId))
                 .findFirst()
                 .ifPresent(paymentChargeback -> {
-                    com.rbkmoney.damsel.domain.InvoicePaymentChargeback invoicePaymentChargeback = paymentChargeback.getChargeback();
-                    chargeback.setChargebackCode(invoicePaymentChargeback.getReason().getCode() != null ?
-                            invoicePaymentChargeback.getReason().getCode() : GeneralInfoInitiator.UNKNOWN)
-                            .setCategory(TBaseUtil.unionFieldToEnum(invoicePaymentChargeback.getReason().getCategory(), ChargebackCategory.class));
+                    com.rbkmoney.damsel.domain.InvoicePaymentChargeback invoicePaymentChargeback =
+                            paymentChargeback.getChargeback();
+                    chargeback.setChargebackCode(invoicePaymentChargeback.getReason().getCode() != null
+                            ? invoicePaymentChargeback.getReason().getCode()
+                            : GeneralInfoInitiator.UNKNOWN)
+                            .setCategory(TBaseUtil.unionFieldToEnum(invoicePaymentChargeback.getReason().getCategory(),
+                                    ChargebackCategory.class));
                 });
 
         log.debug("ChargebackPaymentMapper chargebackRow: {}", chargeback);

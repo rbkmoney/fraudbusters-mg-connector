@@ -2,12 +2,12 @@ package com.rbkmoney.fraudbusters.mg.connector.utils;
 
 
 import com.rbkmoney.damsel.base.Content;
+import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.domain.InvoicePaymentChargeback;
 import com.rbkmoney.damsel.domain.InvoicePaymentChargebackPending;
 import com.rbkmoney.damsel.domain.InvoicePaymentPending;
 import com.rbkmoney.damsel.domain.InvoicePaymentRefund;
 import com.rbkmoney.damsel.domain.InvoicePaymentRefundPending;
-import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.kafka.common.serialization.ThriftSerializer;
@@ -21,13 +21,13 @@ import java.util.List;
 
 public class MgEventSinkFlowGenerator {
 
-    private static final String SOURCE_NS = "source_ns";
-    private static final String PAYMENT_ID = "1";
     public static final String SHOP_ID = "SHOP_ID";
-    private static final String TEST_MAIL_RU = "test@mail.ru";
-    private static final String BIN = "666";
     public static final String PARTY_ID = "owner_id";
     public static final String REFUND_ID = "1";
+    private static final String SOURCE_NS = "source_ns";
+    private static final String PAYMENT_ID = "1";
+    private static final String TEST_MAIL_RU = "test@mail.ru";
+    private static final String BIN = "666";
 
     public static List<SinkEvent> generateSuccessFlow(String sourceId) {
         List<SinkEvent> sinkEvents = new ArrayList<>();
@@ -66,9 +66,9 @@ public class MgEventSinkFlowGenerator {
         sinkEvents.add(createSinkEvent(createRefundMessageCreateInvoice(sourceId, sequenceId++)));
         sinkEvents.add(createSinkEvent(statusChangeRefundMessageCreateInvoice(sourceId, sequenceId++)));
 
-        String refundId_2 = "2";
-        sinkEvents.add(createSinkEvent(createRefundMessageCreateInvoice(sourceId, sequenceId++, refundId_2)));
-        sinkEvents.add(createSinkEvent(statusChangeRefundMessageCreateInvoice(sourceId, sequenceId, refundId_2)));
+        String refundId2 = "2";
+        sinkEvents.add(createSinkEvent(createRefundMessageCreateInvoice(sourceId, sequenceId++, refundId2)));
+        sinkEvents.add(createSinkEvent(statusChangeRefundMessageCreateInvoice(sourceId, sequenceId, refundId2)));
         return sinkEvents;
     }
 
@@ -114,7 +114,8 @@ public class MgEventSinkFlowGenerator {
                                         .setId(REFUND_ID)
                                         .setReason("refund reason")
                                         .setCash(createCash())
-                                        .setStatus(InvoicePaymentRefundStatus.pending(new InvoicePaymentRefundPending()))
+                                        .setStatus(
+                                                InvoicePaymentRefundStatus.pending(new InvoicePaymentRefundPending()))
                                 )
                                 .setCashFlow(new ArrayList<>())
                         )
@@ -127,12 +128,12 @@ public class MgEventSinkFlowGenerator {
         return createMachineEvent(invoiceChange, sourceId, sequenceId);
     }
 
-    private static MachineEvent createChargebackMessageCreateInvoice(String sourceId, Long sequenceId) {
-        return createChargebackMessageCreateInvoice(sourceId, sequenceId, REFUND_ID);
-    }
-
     private static MachineEvent createChargebackMessageChangeStatusInvoice(String sourceId, Long sequenceId) {
         return createChargebackMessageStatusChange(sourceId, sequenceId, REFUND_ID);
+    }
+
+    private static MachineEvent createChargebackMessageCreateInvoice(String sourceId, Long sequenceId) {
+        return createChargebackMessageCreateInvoice(sourceId, sequenceId, REFUND_ID);
     }
 
     private static MachineEvent createChargebackMessageCreateInvoice(String sourceId, Long sequenceId, String id) {
@@ -157,7 +158,8 @@ public class MgEventSinkFlowGenerator {
                 .setCreatedAt(TypeUtil.temporalToString(Instant.now()))
                 .setId(id)
                 .setReason(new InvoicePaymentChargebackReason()
-                        .setCategory(InvoicePaymentChargebackCategory.fraud(new InvoicePaymentChargebackCategoryFraud())))
+                        .setCategory(
+                                InvoicePaymentChargebackCategory.fraud(new InvoicePaymentChargebackCategoryFraud())))
                 .setBody(createCash())
                 .setLevy(createCash())
                 .setStage(InvoicePaymentChargebackStage.chargeback(new InvoicePaymentChargebackStageChargeback()))
@@ -169,14 +171,16 @@ public class MgEventSinkFlowGenerator {
                 .setId(id)
                 .setPayload(InvoicePaymentChargebackChangePayload.invoice_payment_chargeback_status_changed(
                         new InvoicePaymentChargebackStatusChanged()
-                                .setStatus(InvoicePaymentChargebackStatus.accepted(new InvoicePaymentChargebackAccepted()))
+                                .setStatus(
+                                        InvoicePaymentChargebackStatus.accepted(new InvoicePaymentChargebackAccepted()))
 
                         )
                 );
 
         InvoiceChange invoiceChange = InvoiceChange.invoice_payment_change(new InvoicePaymentChange()
                 .setId(PAYMENT_ID)
-                .setPayload(InvoicePaymentChangePayload.invoice_payment_chargeback_change(invoicePaymentChargebackChange))
+                .setPayload(
+                        InvoicePaymentChangePayload.invoice_payment_chargeback_change(invoicePaymentChargebackChange))
         );
         return createMachineEvent(invoiceChange, sourceId, sequenceId);
     }
@@ -185,11 +189,13 @@ public class MgEventSinkFlowGenerator {
         return statusChangeRefundMessageCreateInvoice(sourceId, sequenceId, REFUND_ID);
     }
 
-    private static MachineEvent statusChangeRefundMessageCreateInvoice(String sourceId, Long sequenceId, String refundId) {
+    private static MachineEvent statusChangeRefundMessageCreateInvoice(String sourceId, Long sequenceId,
+                                                                       String refundId) {
         InvoicePaymentRefundChange invoicePaymentRefundCreated = new InvoicePaymentRefundChange()
                 .setId(refundId)
                 .setPayload(InvoicePaymentRefundChangePayload.invoice_payment_refund_status_changed(
-                        new InvoicePaymentRefundStatusChanged(InvoicePaymentRefundStatus.succeeded(new InvoicePaymentRefundSucceeded())
+                        new InvoicePaymentRefundStatusChanged(
+                                InvoicePaymentRefundStatus.succeeded(new InvoicePaymentRefundSucceeded())
                         ))
                 );
 
@@ -307,7 +313,8 @@ public class MgEventSinkFlowGenerator {
         InvoicePaymentAdjustmentStatusChanged invoicePaymentStatusChanged = new InvoicePaymentAdjustmentStatusChanged()
                 .setStatus(InvoicePaymentAdjustmentStatus.captured(new InvoicePaymentAdjustmentCaptured()
                         .setAt(TypeUtil.temporalToString(Instant.now()))));
-        InvoicePaymentAdjustmentChangePayload invoicePaymentAdjustmentChangePayload = new InvoicePaymentAdjustmentChangePayload();
+        InvoicePaymentAdjustmentChangePayload invoicePaymentAdjustmentChangePayload =
+                new InvoicePaymentAdjustmentChangePayload();
         invoicePaymentAdjustmentChangePayload.setInvoicePaymentAdjustmentStatusChanged(invoicePaymentStatusChanged);
 
         payload.setInvoicePaymentAdjustmentChange(new InvoicePaymentAdjustmentChange()
@@ -391,7 +398,8 @@ public class MgEventSinkFlowGenerator {
     }
 
     private static Payer createCustomerPayer() {
-        Payer customer = Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo()));
+        Payer customer =
+                Payer.customer(new CustomerPayer("custId", "1", "rec_paym_tool", createBankCard(), new ContactInfo()));
         customer.setPaymentResource(
                 new PaymentResourcePayer()
                         .setResource(new DisposablePaymentResource()

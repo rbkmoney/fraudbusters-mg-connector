@@ -31,9 +31,12 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     @Override
     public boolean accept(InvoiceChange change) {
         return getChangeType().getFilter().match(change)
-                && (change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetFailed()
-                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetProcessed()
-                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus().isSetCaptured());
+                && (change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus()
+                .isSetFailed()
+                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus()
+                .isSetProcessed()
+                || change.getInvoicePaymentChange().getPayload().getInvoicePaymentStatusChanged().getStatus()
+                .isSetCaptured());
     }
 
     @Override
@@ -56,7 +59,9 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
         return payment;
     }
 
-    private Payment initPayment(MachineEvent event, InvoicePaymentStatusChanged invoicePaymentStatusChanged, com.rbkmoney.damsel.domain.Invoice invoice, InvoicePayment invoicePayment, Payer payer, PaymentTool paymentTool) {
+    private Payment initPayment(MachineEvent event, InvoicePaymentStatusChanged invoicePaymentStatusChanged,
+                                com.rbkmoney.damsel.domain.Invoice invoice, InvoicePayment invoicePayment, Payer payer,
+                                PaymentTool paymentTool) {
         return new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
