@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class FistfulCurrencyToDomainCurrencyConverter implements Converter<com.rbkmoney.fistful.base.CurrencyRef, CurrencyRef> {
+public class FistfulCurrencyToDomainCurrencyConverter
+        implements Converter<com.rbkmoney.fistful.base.CurrencyRef, CurrencyRef> {
 
     @Override
     public CurrencyRef convert(com.rbkmoney.fistful.base.CurrencyRef currency) {

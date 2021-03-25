@@ -11,7 +11,8 @@ import java.util.Map;
 @Slf4j
 public class PaymentDeserializer implements Deserializer<Payment> {
 
-    ThreadLocal<TDeserializer> tDeserializerThreadLocal = ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
+    ThreadLocal<TDeserializer> thriftDeserializerThreadLocal =
+            ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -23,7 +24,7 @@ public class PaymentDeserializer implements Deserializer<Payment> {
         log.debug("Message, topic: {}, byteLength: {}", topic, data.length);
         Payment payment = new Payment();
         try {
-            tDeserializerThreadLocal.get().deserialize(payment, data);
+            thriftDeserializerThreadLocal.get().deserialize(payment, data);
         } catch (Exception e) {
             log.error("Error when deserialize ruleTemplate data: {} ", data, e);
         }

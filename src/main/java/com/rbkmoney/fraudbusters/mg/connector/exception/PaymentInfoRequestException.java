@@ -16,7 +16,8 @@ public class PaymentInfoRequestException extends RuntimeException {
         super(cause);
     }
 
-    public PaymentInfoRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public PaymentInfoRequestException(String message, Throwable cause, boolean enableSuppression,
+                                       boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

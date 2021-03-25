@@ -25,10 +25,14 @@ public class WithdrawalFlowGenerator {
     public static List<SinkEvent> generateSuccessFlow(String sourceId) {
         final ArrayList<SinkEvent> sinkEvents = new ArrayList<>();
         Long sequenceId = 0L;
-        sinkEvents.add(createSinkEvent(createMachineEvent(createTimestampedChange(createPendingStatus()), sourceId, sequenceId++)));
-        sinkEvents.add(createSinkEvent(createMachineEvent(createTimestampedChange(createPendingStatus()), sourceId, sequenceId++)));
-        sinkEvents.add(createSinkEvent(createMachineEvent(createTimestampedChange(createSuccessStatus()), sourceId, sequenceId++)));
-        sinkEvents.add(createSinkEvent(createMachineEvent(createTimestampedChange(createFailedStatus()), sourceId, sequenceId)));
+        sinkEvents.add(createSinkEvent(
+                createMachineEvent(createTimestampedChange(createPendingStatus()), sourceId, sequenceId++)));
+        sinkEvents.add(createSinkEvent(
+                createMachineEvent(createTimestampedChange(createPendingStatus()), sourceId, sequenceId++)));
+        sinkEvents.add(createSinkEvent(
+                createMachineEvent(createTimestampedChange(createSuccessStatus()), sourceId, sequenceId++)));
+        sinkEvents.add(createSinkEvent(
+                createMachineEvent(createTimestampedChange(createFailedStatus()), sourceId, sequenceId)));
         return sinkEvents;
     }
 
@@ -62,7 +66,8 @@ public class WithdrawalFlowGenerator {
         return sinkEvent;
     }
 
-    private static MachineEvent createMachineEvent(TimestampedChange timestampedChange, String sourceId, Long sequenceId) {
+    private static MachineEvent createMachineEvent(TimestampedChange timestampedChange, String sourceId,
+                                                   Long sequenceId) {
         MachineEvent message = new MachineEvent();
         message.setCreatedAt(TypeUtil.temporalToString(Instant.now()));
         message.setEventId(sequenceId);

@@ -28,18 +28,16 @@ import java.util.Properties;
 @RequiredArgsConstructor
 public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFactory {
 
-    @Value("${kafka.topic.source.withdrawal}")
-    private String source;
-    @Value("${kafka.topic.sink.withdrawal}")
-    private String sink;
-
     private final Mapper<TimestampedChange, MachineEvent, Withdrawal> logWithdrawalMapperDecorator;
     private final EventParser<TimestampedChange> withdrawalEventParser;
     private final RetryTemplate retryTemplate;
     private final Properties mgWithdrawalEventStreamProperties;
-
     private final Serde<MachineEvent> machineEventSerde = new MachineEventSerde();
     private final Serde<Withdrawal> withdrawalSerde = new WithdrawalSerde();
+    @Value("${kafka.topic.source.withdrawal}")
+    private String source;
+    @Value("${kafka.topic.sink.withdrawal}")
+    private String sink;
 
     @Override
     public KafkaStreams create() {

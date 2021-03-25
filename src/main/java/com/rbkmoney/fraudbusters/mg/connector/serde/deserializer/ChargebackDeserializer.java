@@ -11,7 +11,8 @@ import java.util.Map;
 @Slf4j
 public class ChargebackDeserializer implements Deserializer<Chargeback> {
 
-    ThreadLocal<TDeserializer> tDeserializerThreadLocal = ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
+    ThreadLocal<TDeserializer> thriftDeserializerThreadLocal =
+            ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
 
     @Override
     public void configure(Map<String, ?> configs, boolean isKey) {
@@ -23,7 +24,7 @@ public class ChargebackDeserializer implements Deserializer<Chargeback> {
         log.debug("Message, topic: {}, byteLength: {}", topic, data.length);
         Chargeback chargeback = new Chargeback();
         try {
-            tDeserializerThreadLocal.get().deserialize(chargeback, data);
+            thriftDeserializerThreadLocal.get().deserialize(chargeback, data);
         } catch (Exception e) {
             log.error("Error when deserialize ruleTemplate data: {} ", data, e);
         }

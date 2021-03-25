@@ -26,7 +26,8 @@ public class WithdrawalModelUtil {
         if (destinationState.getResource().isSetBankCard()
                 && destinationState.getResource().getBankCard().isSetBankCard()
                 && destinationState.getResource().getBankCard().getBankCard().isSetIssuerCountry()) {
-            providerInfo.setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
+            providerInfo
+                    .setCountry(destinationState.getResource().getBankCard().getBankCard().getIssuerCountry().name());
         }
         return providerInfo;
     }

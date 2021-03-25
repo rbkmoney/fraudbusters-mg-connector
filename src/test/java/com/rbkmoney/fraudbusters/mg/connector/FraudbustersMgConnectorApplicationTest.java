@@ -66,11 +66,11 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
         sinkEvents.forEach(sinkEvent -> produceMessageToEventSink(MG_EVENT, sinkEvent));
         checkMessageInTopic(PAYMENT, PaymentDeserializer.class, 2);
 
-        String sourceID_refund_1 = "sourceID_refund_1";
-        mockPayment(sourceID_refund_1);
-        mockRefund(sourceID_refund_1, 7, "1");
-        mockRefund(sourceID_refund_1, 9, "2");
-        sinkEvents = MgEventSinkFlowGenerator.generateRefundedFlow(sourceID_refund_1);
+        String sourceIdRefund2 = "sourceIdRefund2";
+        mockPayment(sourceIdRefund2);
+        mockRefund(sourceIdRefund2, 7, "1");
+        mockRefund(sourceIdRefund2, 9, "2");
+        sinkEvents = MgEventSinkFlowGenerator.generateRefundedFlow(sourceIdRefund2);
         sinkEvents.forEach(sinkEvent -> produceMessageToEventSink(MG_EVENT, sinkEvent));
 
         checkMessageInTopic(REFUND, RefundDeserializer.class, 2);
@@ -124,34 +124,39 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
         mockPayment(sourceId, 5);
     }
 
+    private OngoingStubbing<Invoice> mockPayment(String sourceId, int i) throws TException, IOException {
+        return when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(i)))
+                .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
+                        sourceId, "1", "1", "1",
+                        InvoiceStatus.paid(new InvoicePaid()),
+                        InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
+    }
+
     private void mockPaymentWithException(String sourceId) throws TException, IOException {
         when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(4)))
                 .thenThrow(new RuntimeException())
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         sourceId, "1", "1", "1",
-                        InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
+                        InvoiceStatus.paid(new InvoicePaid()),
+                        InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
         mockPayment(sourceId, 5);
     }
 
-    private OngoingStubbing<Invoice> mockPayment(String sourceId, int i) throws TException, IOException {
-        return when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(i)))
-                .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
-                        sourceId, "1", "1", "1",
-                        InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
-    }
 
     private void mockRefund(String sourceId, int sequenceId, String refundId) throws TException, IOException {
         when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(sequenceId)))
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         sourceId, "1", refundId, "1",
-                        InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.refunded(new InvoicePaymentRefunded())));
+                        InvoiceStatus.paid(new InvoicePaid()),
+                        InvoicePaymentStatus.refunded(new InvoicePaymentRefunded())));
     }
 
     private void mockChargeback(String sourceId, int sequenceId, String chargebackId) throws TException, IOException {
         when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(sequenceId)))
                 .thenReturn(BuildUtils.buildInvoice(MgEventSinkFlowGenerator.PARTY_ID, MgEventSinkFlowGenerator.SHOP_ID,
                         sourceId, "1", "1", chargebackId,
-                        InvoiceStatus.paid(new InvoicePaid()), InvoicePaymentStatus.charged_back(new InvoicePaymentChargedBack())));
+                        InvoiceStatus.paid(new InvoicePaid()),
+                        InvoicePaymentStatus.charged_back(new InvoicePaymentChargedBack())));
     }
 
 }

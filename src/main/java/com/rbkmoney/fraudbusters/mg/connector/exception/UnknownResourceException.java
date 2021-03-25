@@ -16,7 +16,8 @@ public class UnknownResourceException extends RuntimeException {
         super(cause);
     }
 
-    public UnknownResourceException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public UnknownResourceException(String message, Throwable cause, boolean enableSuppression,
+                                    boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

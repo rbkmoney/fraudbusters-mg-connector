@@ -42,9 +42,11 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
 
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
-        InvoicePaymentRefundChange invoicePaymentRefundChange = invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
+        InvoicePaymentRefundChange invoicePaymentRefundChange =
+                invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
         InvoicePaymentRefundChangePayload payload = invoicePaymentRefundChange.getPayload();
-        InvoicePaymentRefundStatusChanged invoicePaymentRefundStatusChanged = payload.getInvoicePaymentRefundStatusChanged();
+        InvoicePaymentRefundStatusChanged invoicePaymentRefundStatusChanged =
+                payload.getInvoicePaymentRefundStatusChanged();
         String refundId = invoicePaymentRefundChange.getId();
 
         InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(),
@@ -56,7 +58,8 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
         Payer payer = invoicePayment.getPayment().getPayer();
 
         Refund refund = new Refund()
-                .setStatus(TBaseUtil.unionFieldToEnum(payload.getInvoicePaymentRefundStatusChanged().getStatus(), RefundStatus.class))
+                .setStatus(TBaseUtil.unionFieldToEnum(payload.getInvoicePaymentRefundStatusChanged().getStatus(),
+                        RefundStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))

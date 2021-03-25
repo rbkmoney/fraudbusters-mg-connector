@@ -12,7 +12,8 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class FistfulResourceToDomainResourceConverter implements Converter<com.rbkmoney.fistful.base.Resource, Resource> {
+public class FistfulResourceToDomainResourceConverter
+        implements Converter<com.rbkmoney.fistful.base.Resource, Resource> {
 
     public static final BankCardPaymentSystem DEAFAULT_PAYMENT_SYSTEM = BankCardPaymentSystem.visa;
     public static final String UNKNOWN = "UNKNOWN";
@@ -40,12 +41,18 @@ public class FistfulResourceToDomainResourceConverter implements Converter<com.r
     private BankCard convertBankCard(com.rbkmoney.fistful.base.BankCard bankCardFrom) {
         BankCard bankCard = new BankCard();
         bankCard.setToken(bankCardFrom.getToken());
-        bankCard.setIssuerCountry(bankCardFrom.isSetIssuerCountry() ?
-                Residence.valueOf(bankCardFrom.getIssuerCountry().name()) : null);
-        bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem() ?
-                BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name()) : DEAFAULT_PAYMENT_SYSTEM);
-        bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null ? bankCardFrom.getMaskedPan() : UNKNOWN);
-        bankCard.setBin(bankCardFrom.getBin() != null ? bankCardFrom.getBin() : UNKNOWN);
+        bankCard.setIssuerCountry(bankCardFrom.isSetIssuerCountry()
+                ? Residence.valueOf(bankCardFrom.getIssuerCountry().name())
+                : null);
+        bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem()
+                ? BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name())
+                : DEAFAULT_PAYMENT_SYSTEM);
+        bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null
+                ? bankCardFrom.getMaskedPan()
+                : UNKNOWN);
+        bankCard.setBin(bankCardFrom.getBin() != null
+                ? bankCardFrom.getBin()
+                : UNKNOWN);
         bankCard.setCategory(bankCardFrom.getCategory());
         bankCard.setBankName(bankCardFrom.getBankName());
         return bankCard;

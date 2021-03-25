@@ -13,8 +13,8 @@ import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulCurrencyToDomainC
 import com.rbkmoney.fraudbusters.mg.connector.converter.FistfulResourceToDomainResourceConverter;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.service.DestinationClientService;
-import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
+import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -70,8 +70,6 @@ public class WithdrawalMapperTest {
 
     @Test
     public void map() {
-        TimestampedChange timestampedChange = createStatusCahnge(Status.failed(new Failed()));
-
         final MachineEvent event = new MachineEvent();
         event.setSourceId(SOURCE_ID);
         event.setEventId(EVENT_ID);
@@ -82,8 +80,10 @@ public class WithdrawalMapperTest {
         withdrawalState.setWalletId(WALLET_ID);
         when(withdrawalClientService.getWithdrawalInfoFromFistful(SOURCE_ID, EVENT_ID)).thenReturn(withdrawalState);
         when(walletClientService.getWalletInfoFromFistful(WALLET_ID)).thenReturn(createWallet());
-        when(destinationClientService.getDestinationInfoFromFistful(DESTINATION_ID)).thenReturn(createDestinationState());
+        when(destinationClientService.getDestinationInfoFromFistful(DESTINATION_ID))
+                .thenReturn(createDestinationState());
 
+        TimestampedChange timestampedChange = createStatusCahnge(Status.failed(new Failed()));
         final Withdrawal map = logWithdrawalMapperDecorator.map(timestampedChange, event);
 
         assertEquals(RUB, map.getCost().getCurrency().symbolic_code);

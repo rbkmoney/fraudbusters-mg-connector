@@ -25,20 +25,28 @@ public class HgClientService {
     private final InvoicingSrv.Iface invoicingClient;
     private final EventRangeFactory eventRangeFactory;
 
-    public InvoicePaymentWrapper getInvoiceInfo(String invoiceId,
-                                                BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
-                                                String paymentId, String eventId, long sequenceId) {
+    public InvoicePaymentWrapper getInvoiceInfo(
+            String invoiceId,
+            BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
+            String paymentId,
+            String eventId,
+            long sequenceId) {
         return getInvoiceFromHg(invoiceId, findPaymentPredicate, eventId, sequenceId);
     }
 
-    public InvoicePaymentWrapper getInvoiceInfo(String invoiceId,
-                                                BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
-                                                String paymentId, long sequenceId) {
+    public InvoicePaymentWrapper getInvoiceInfo(
+            String invoiceId,
+            BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
+            String paymentId,
+            long sequenceId) {
         return getInvoiceFromHg(invoiceId, findPaymentPredicate, paymentId, sequenceId);
     }
 
-    private InvoicePaymentWrapper getInvoiceFromHg(String invoiceId, BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
-                                                   String eventId, long sequenceId) {
+    private InvoicePaymentWrapper getInvoiceFromHg(
+            String invoiceId,
+            BiFunction<String, Invoice, Optional<InvoicePayment>> findPaymentPredicate,
+            String eventId,
+            long sequenceId) {
         InvoicePaymentWrapper invoicePaymentWrapper = new InvoicePaymentWrapper();
         try {
             Invoice invoiceInfo = invoicingClient.get(USER_INFO, invoiceId, eventRangeFactory.create(sequenceId));

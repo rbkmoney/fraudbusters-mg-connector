@@ -1,9 +1,9 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.initializer;
 
 import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.fraudbusters.ClientInfo;
 import com.rbkmoney.damsel.fraudbusters.Error;
-import com.rbkmoney.damsel.fraudbusters.*;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentStatusChanged;
 import com.rbkmoney.geck.serializer.kit.tbase.TErrorUtil;
