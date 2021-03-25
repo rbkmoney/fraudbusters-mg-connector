@@ -34,7 +34,7 @@ public class MachineEventDeserializer implements Deserializer<MachineEvent> {
 
     @Override
     public void close() {
-
+        thriftDeserializerThreadLocal.remove();
     }
 
 }

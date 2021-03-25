@@ -1,6 +1,7 @@
 package com.rbkmoney.fraudbusters.mg.connector.serde.deserializer;
 
 import com.rbkmoney.damsel.fraudbusters.Refund;
+import com.rbkmoney.kafka.common.serialization.AbstractThriftDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.thrift.TDeserializer;
@@ -9,31 +10,10 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import java.util.Map;
 
 @Slf4j
-public class RefundDeserializer implements Deserializer<Refund> {
-
-    ThreadLocal<TDeserializer> thriftDeserializerThreadLocal =
-            ThreadLocal.withInitial(() -> new TDeserializer(new TBinaryProtocol.Factory()));
-
-    @Override
-    public void configure(Map<String, ?> configs, boolean isKey) {
-
-    }
+public class RefundDeserializer extends AbstractThriftDeserializer<Refund> {
 
     @Override
     public Refund deserialize(String topic, byte[] data) {
-        log.debug("Message, topic: {}, byteLength: {}", topic, data.length);
-        Refund refund = new Refund();
-        try {
-            thriftDeserializerThreadLocal.get().deserialize(refund, data);
-        } catch (Exception e) {
-            log.error("Error when deserialize ruleTemplate data: {} ", data, e);
-        }
-        return refund;
+        return deserialize(data, new Refund());
     }
-
-    @Override
-    public void close() {
-
-    }
-
 }
