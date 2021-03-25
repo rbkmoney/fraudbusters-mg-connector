@@ -26,7 +26,7 @@
 
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
         <fraudbusters-proto.version>1.67-fa4d6ec</fraudbusters-proto.version>
-        <fistful-proto.version>1.111-751bbf8</fistful-proto.version>
+        <fistful-proto.version>1.114-7b3f125</fistful-proto.version>
     </properties>
 
     <dependencies>
@@ -107,7 +107,6 @@
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>4.0.1</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -139,7 +138,6 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>4.0.3</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
