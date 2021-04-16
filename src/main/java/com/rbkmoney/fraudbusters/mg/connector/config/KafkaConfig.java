@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.mg.connector.config;
 
 import com.rbkmoney.fraudbusters.mg.connector.serde.MachineEventSerde;
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsConfig;
@@ -22,6 +23,7 @@ public class KafkaConfig {
     private static final String APP_ID = "fraud-connector";
     private static final String CLIENT_ID = "fraud-connector-client";
     private static final String PKCS_12 = "PKCS12";
+
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
     @Value("${kafka.ssl.server-password}")
@@ -42,6 +44,8 @@ public class KafkaConfig {
     private int retriesAttempts;
     @Value("${kafka.stream.retries-backoff-ms}")
     private int retriesBackoffMs;
+    @Value("${kafka.stream.default-api-timeout-ms}")
+    private int defaultApiTimeoutMs;
 
     @Bean
     public Properties mgInvoiceEventStreamProperties() {
@@ -76,6 +80,7 @@ public class KafkaConfig {
         props.put(StreamsConfig.RETRY_BACKOFF_MS_CONFIG, retriesBackoffMs);
         props.put(StreamsConfig.DEFAULT_DESERIALIZATION_EXCEPTION_HANDLER_CLASS_CONFIG,
                 LogAndFailExceptionHandler.class);
+        props.put(ConsumerConfig.DEFAULT_API_TIMEOUT_MS_CONFIG, defaultApiTimeoutMs);
     }
 
     private Map<String, Object> sslConfigure() {

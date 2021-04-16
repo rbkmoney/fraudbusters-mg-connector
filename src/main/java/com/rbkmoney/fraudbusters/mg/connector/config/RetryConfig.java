@@ -10,22 +10,22 @@ import org.springframework.retry.support.RetryTemplate;
 @Configuration
 public class RetryConfig {
 
-    @Value("${retry.timeout:1000}")
-    private long timeout;
+    @Value("${kafka.stream.retries-attempts}")
+    private int retriesAttempts;
 
-    @Value("${retry.max.attempts:3}")
-    private int maxAttempts;
+    @Value("${kafka.stream.retries-backoff-ms}")
+    private int retriesBackoffMs;
 
     @Bean
     public RetryTemplate retryTemplate() {
         RetryTemplate retryTemplate = new RetryTemplate();
 
         FixedBackOffPolicy fixedBackOffPolicy = new FixedBackOffPolicy();
-        fixedBackOffPolicy.setBackOffPeriod(timeout);
+        fixedBackOffPolicy.setBackOffPeriod(retriesBackoffMs);
         retryTemplate.setBackOffPolicy(fixedBackOffPolicy);
 
         SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-        retryPolicy.setMaxAttempts(maxAttempts);
+        retryPolicy.setMaxAttempts(retriesAttempts);
         retryTemplate.setRetryPolicy(retryPolicy);
 
         return retryTemplate;

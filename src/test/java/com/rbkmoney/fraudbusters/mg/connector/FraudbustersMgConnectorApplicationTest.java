@@ -20,6 +20,7 @@ import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -141,7 +142,6 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
                         InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
         mockPayment(sourceId, 5);
     }
-
 
     private void mockRefund(String sourceId, int sequenceId, String refundId) throws TException, IOException {
         when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(sequenceId)))

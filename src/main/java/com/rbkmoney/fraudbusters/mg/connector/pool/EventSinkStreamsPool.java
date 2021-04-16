@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.mg.connector.pool;
 
 import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -17,10 +18,16 @@ public class EventSinkStreamsPool {
         kafkaStreamsList.add(kafkaStreams);
     }
 
+    public void restartAllIfShutdown() {
+        if (!CollectionUtils.isEmpty(kafkaStreamsList)) {
+            kafkaStreamsList.stream()
+                    .filter(kafkaStreams -> kafkaStreams.state() == KafkaStreams.State.PENDING_SHUTDOWN)
+                    .forEach(KafkaStreams::start);
+        }
+    }
+
     public void clean() {
-        kafkaStreamsList.forEach(kafkaStreams -> {
-            kafkaStreams.close(Duration.ofSeconds(5L));
-        });
+        kafkaStreamsList.forEach(kafkaStreams -> kafkaStreams.close(Duration.ofSeconds(5L)));
     }
 
 }

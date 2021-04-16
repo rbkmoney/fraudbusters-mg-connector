@@ -77,7 +77,10 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
 
             branch[0].mapValues(mgEventWrapper ->
                     retryTemplate.execute(args ->
-                            paymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
+                    {
+                        log.info("Rerty");
+                        return paymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent());
+                    }))
                     .to(paymentTopic, Produced.with(Serdes.String(), paymentSerde));
 
             branch[1].mapValues(mgEventWrapper ->

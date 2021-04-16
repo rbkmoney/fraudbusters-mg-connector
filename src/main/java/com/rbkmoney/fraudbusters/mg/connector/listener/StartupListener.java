@@ -2,7 +2,6 @@ package com.rbkmoney.fraudbusters.mg.connector.listener;
 
 import com.rbkmoney.fraudbusters.mg.connector.factory.EventSinkFactory;
 import com.rbkmoney.fraudbusters.mg.connector.pool.EventSinkStreamsPool;
-import com.rbkmoney.fraudbusters.mg.connector.utils.ShutdownManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
@@ -18,10 +17,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final int FATAL_ERROR_CODE_IN_STREAM = 228;
     private final List<EventSinkFactory> eventSinkFactories;
     private final EventSinkStreamsPool eventSinkStreamsPool;
-    private final ShutdownManager shutdownManager;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -40,7 +37,7 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private void handleCriticalError(Thread t, Throwable e) {
         log.error("Unhandled exception in " + t.getName() + ", exiting. {}", eventSinkStreamsPool, e);
-        shutdownManager.initiateShutdown(FATAL_ERROR_CODE_IN_STREAM);
+        eventSinkStreamsPool.clean();
     }
 
 }
