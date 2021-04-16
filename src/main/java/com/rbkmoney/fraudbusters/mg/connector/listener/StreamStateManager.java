@@ -20,7 +20,7 @@ public class StreamStateManager {
     @Scheduled(fixedRate = 60000)
     public void monitorStateOfStreams() {
         try {
-            eventSinkStreamsPool.restartAllIfShutdown();
+            eventSinkStreamsPool.restartAllShutdownStreams();
         } catch (Exception e) {
             log.error("Error in monitor shutdown streams. {}", eventSinkStreamsPool, e);
             shutdownManager.initiateShutdown(FATAL_ERROR_CODE_IN_STREAM);

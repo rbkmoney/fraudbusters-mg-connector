@@ -20,7 +20,6 @@ import com.rbkmoney.machinegun.eventsink.SinkEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
-import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.junit.Test;
 import org.junit.runner.RunWith;

@@ -18,7 +18,7 @@ public class EventSinkStreamsPool {
         kafkaStreamsList.add(kafkaStreams);
     }
 
-    public void restartAllIfShutdown() {
+    public void restartAllShutdownStreams() {
         if (!CollectionUtils.isEmpty(kafkaStreamsList)) {
             kafkaStreamsList.stream()
                     .filter(kafkaStreams -> kafkaStreams.state() == KafkaStreams.State.PENDING_SHUTDOWN)
