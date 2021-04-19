@@ -38,7 +38,7 @@ public class StreamStateManager {
         }
     }
 
-    public void stop(){
+    public void stop() {
         isStreamRunning.set(false);
     }
 
