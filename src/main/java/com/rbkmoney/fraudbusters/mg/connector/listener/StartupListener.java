@@ -2,15 +2,16 @@ package com.rbkmoney.fraudbusters.mg.connector.listener;
 
 import com.rbkmoney.fraudbusters.mg.connector.factory.EventSinkFactory;
 import com.rbkmoney.fraudbusters.mg.connector.pool.EventSinkStreamsPool;
-import com.rbkmoney.fraudbusters.mg.connector.utils.ShutdownManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.streams.KafkaStreams;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import java.time.Duration;
 import java.util.List;
 
 @Slf4j
@@ -18,10 +19,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class StartupListener implements ApplicationListener<ContextRefreshedEvent> {
 
-    public static final int FATAL_ERROR_CODE_IN_STREAM = 228;
     private final List<EventSinkFactory> eventSinkFactories;
     private final EventSinkStreamsPool eventSinkStreamsPool;
-    private final ShutdownManager shutdownManager;
+
+    @Value("${kafka.stream.clean-timeout-sec}")
+    private Long cleanTimeoutSec;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -32,15 +34,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private void initKafkaStream(EventSinkFactory eventSinkFactory) {
         KafkaStreams kafkaStreams = eventSinkFactory.create();
-        kafkaStreams.setUncaughtExceptionHandler(this::handleCriticalError);
         kafkaStreams.start();
-        eventSinkStreamsPool.add(kafkaStreams);
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> kafkaStreams.close(Duration.ofSeconds(cleanTimeoutSec))));
+        eventSinkStreamsPool.put(eventSinkFactory.getType(), kafkaStreams);
         log.info("StartupListener start stream kafkaStreams: {}", kafkaStreams.allMetadata());
-    }
-
-    private void handleCriticalError(Thread t, Throwable e) {
-        log.error("Unhandled exception in " + t.getName() + ", exiting. {}", eventSinkStreamsPool, e);
-        shutdownManager.initiateShutdown(FATAL_ERROR_CODE_IN_STREAM);
     }
 
 }

@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.mg.connector.factory;
 
 import com.rbkmoney.damsel.fraudbusters.Withdrawal;
 import com.rbkmoney.fistful.withdrawal.TimestampedChange;
+import com.rbkmoney.fraudbusters.mg.connector.constant.StreamType;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.parser.EventParser;
@@ -38,6 +39,11 @@ public class MgEventSinkWithdrawalToFraudStreamFactory implements EventSinkFacto
     private String source;
     @Value("${kafka.topic.sink.withdrawal}")
     private String sink;
+
+    @Override
+    public StreamType getType() {
+        return StreamType.WITHDRAWAL;
+    }
 
     @Override
     public KafkaStreams create() {

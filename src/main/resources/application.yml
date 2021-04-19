@@ -55,6 +55,9 @@ kafka:
   stream:
     retries-attempts: 300
     retries-backoff-ms: 1000
+    default-api-timeout-ms: 300000
+    clean-timeout-sec: 20
+    fixed-rate-timeout-ms: 60000
   ssl:
     enable: false
     keystore-location: src/main/resources/cert/kenny-k.struzhkin.p12

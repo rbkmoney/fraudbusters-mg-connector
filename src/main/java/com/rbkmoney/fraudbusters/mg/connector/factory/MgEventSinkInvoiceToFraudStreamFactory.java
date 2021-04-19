@@ -2,6 +2,7 @@ package com.rbkmoney.fraudbusters.mg.connector.factory;
 
 import com.rbkmoney.damsel.payment_processing.EventPayload;
 import com.rbkmoney.damsel.payment_processing.InvoiceChange;
+import com.rbkmoney.fraudbusters.mg.connector.constant.StreamType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.MgEventWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.exception.StreamInitializationException;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.impl.ChargebackPaymentMapper;
@@ -53,6 +54,11 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
     private String paymentTopic;
     @Value("${kafka.topic.sink.chargeback}")
     private String chargebackTopic;
+
+    @Override
+    public StreamType getType() {
+        return StreamType.INVOICE;
+    }
 
     @Override
     public KafkaStreams create() {

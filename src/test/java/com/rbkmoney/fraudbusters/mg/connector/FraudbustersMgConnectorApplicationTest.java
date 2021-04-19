@@ -41,11 +41,17 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FraudbustersMgConnectorApplication.class, properties = {"stream.withdrawal.debug=false"})
+@SpringBootTest(classes = FraudbustersMgConnectorApplication.class,
+        properties = {
+                "stream.withdrawal.debug=false",
+                "kafka.stream.retries-attempts=1",
+                "kafka.stream.retries-backoff-ms=100",
+                "kafka.stream.fixed-rate-timeout-ms=100"
+        })
 public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
 
     public static final String SOURCE_ID = "source_id";
-    public static final long TIMEOUT = 2000L;
+    public static final long TIMEOUT = 20000L;
 
     @MockBean
     InvoicingSrv.Iface invoicingClient;
@@ -141,7 +147,6 @@ public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
                         InvoicePaymentStatus.processed(new InvoicePaymentProcessed())));
         mockPayment(sourceId, 5);
     }
-
 
     private void mockRefund(String sourceId, int sequenceId, String refundId) throws TException, IOException {
         when(invoicingClient.get(HgClientService.USER_INFO, sourceId, eventRangeFactory.create(sequenceId)))

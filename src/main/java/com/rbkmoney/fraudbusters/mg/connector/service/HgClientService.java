@@ -4,10 +4,12 @@ package com.rbkmoney.fraudbusters.mg.connector.service;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
 import com.rbkmoney.fraudbusters.mg.connector.exception.PaymentInfoNotFoundException;
-import com.rbkmoney.fraudbusters.mg.connector.exception.PaymentInfoRequestException;
 import com.rbkmoney.fraudbusters.mg.connector.factory.EventRangeFactory;
+import com.rbkmoney.woody.api.flow.error.WUnavailableResultException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.connect.errors.RetriableException;
+import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.springframework.stereotype.Service;
 
@@ -59,10 +61,10 @@ public class HgClientService {
                         throw new PaymentInfoNotFoundException("Not found payment in invoice!");
                     });
             return invoicePaymentWrapper;
-        } catch (TException e) {
+        } catch (WUnavailableResultException | TException e) {
             log.error("Error when HgClientService getInvoiceInfo invoiceId: {} eventId: {} sequenceId: {} e: ",
                     invoiceId, eventId, sequenceId, e);
-            throw new PaymentInfoRequestException(e);
+            throw new RetriableException(e);
         }
     }
 }
