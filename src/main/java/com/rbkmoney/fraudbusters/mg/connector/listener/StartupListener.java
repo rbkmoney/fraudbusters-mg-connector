@@ -29,15 +29,10 @@ public class StartupListener implements ApplicationListener<ContextRefreshedEven
 
     private void initKafkaStream(EventSinkFactory eventSinkFactory) {
         KafkaStreams kafkaStreams = eventSinkFactory.create();
-        kafkaStreams.setUncaughtExceptionHandler(this::handleCriticalError);
         kafkaStreams.start();
-        eventSinkStreamsPool.add(kafkaStreams);
+        Runtime.getRuntime().addShutdownHook(new Thread(kafkaStreams::close));
+        eventSinkStreamsPool.put(eventSinkFactory.getType(), kafkaStreams);
         log.info("StartupListener start stream kafkaStreams: {}", kafkaStreams.allMetadata());
-    }
-
-    private void handleCriticalError(Thread t, Throwable e) {
-        log.error("Unhandled exception in " + t.getName() + ", exiting. {}", eventSinkStreamsPool, e);
-        eventSinkStreamsPool.clean();
     }
 
 }

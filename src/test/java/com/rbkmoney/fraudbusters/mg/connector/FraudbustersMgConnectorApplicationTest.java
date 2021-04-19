@@ -41,11 +41,17 @@ import static org.mockito.Mockito.when;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = FraudbustersMgConnectorApplication.class, properties = {"stream.withdrawal.debug=false"})
+@SpringBootTest(classes = FraudbustersMgConnectorApplication.class,
+        properties = {
+        "stream.withdrawal.debug=false",
+        "kafka.stream.retries-attempts=2",
+        "kafka.stream.retries-backoff-ms=100",
+        "kafka.stream.fixed-rate-timeout-ms=200"
+})
 public class FraudbustersMgConnectorApplicationTest extends KafkaAbstractTest {
 
     public static final String SOURCE_ID = "source_id";
-    public static final long TIMEOUT = 2000L;
+    public static final long TIMEOUT = 3000L;
 
     @MockBean
     InvoicingSrv.Iface invoicingClient;

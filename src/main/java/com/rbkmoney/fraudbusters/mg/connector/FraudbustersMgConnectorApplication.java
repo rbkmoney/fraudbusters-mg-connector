@@ -27,7 +27,7 @@ public class FraudbustersMgConnectorApplication extends SpringApplication {
 
     @PreDestroy
     public void preDestroy() {
-        eventSinkStreamsPool.clean();
+        eventSinkStreamsPool.cleanAll();
         kafkaListenerEndpointRegistry.stop();
     }
 

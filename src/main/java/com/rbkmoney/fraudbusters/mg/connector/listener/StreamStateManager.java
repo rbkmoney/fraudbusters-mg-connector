@@ -1,11 +1,16 @@
 package com.rbkmoney.fraudbusters.mg.connector.listener;
 
+import com.rbkmoney.fraudbusters.mg.connector.constant.StreamType;
+import com.rbkmoney.fraudbusters.mg.connector.factory.EventSinkFactory;
 import com.rbkmoney.fraudbusters.mg.connector.pool.EventSinkStreamsPool;
 import com.rbkmoney.fraudbusters.mg.connector.utils.ShutdownManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.streams.KafkaStreams;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Slf4j
 @Component
@@ -16,14 +21,24 @@ public class StreamStateManager {
 
     private final EventSinkStreamsPool eventSinkStreamsPool;
     private final ShutdownManager shutdownManager;
+    private final List<EventSinkFactory> eventSinkFactories;
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(fixedRateString = "${kafka.stream.fixed-rate-timeout-ms}")
     public void monitorStateOfStreams() {
         try {
-            eventSinkStreamsPool.restartAllShutdownStreams();
+            eventSinkFactories.forEach(this::createStreamIfShutdown);
         } catch (Exception e) {
             log.error("Error in monitor shutdown streams. {}", eventSinkStreamsPool, e);
             shutdownManager.initiateShutdown(FATAL_ERROR_CODE_IN_STREAM);
+        }
+    }
+
+    private void createStreamIfShutdown(EventSinkFactory eventSinkFactory) {
+        StreamType streamType = eventSinkFactory.getType();
+        KafkaStreams kafkaStreams = eventSinkStreamsPool.get(streamType);
+        if (kafkaStreams != null && kafkaStreams.state() == KafkaStreams.State.PENDING_SHUTDOWN) {
+            eventSinkStreamsPool.put(streamType, eventSinkFactory.create());
+            log.info("Kafka stream streamType: {} state: {}", streamType, kafkaStreams.state());
         }
     }
 
