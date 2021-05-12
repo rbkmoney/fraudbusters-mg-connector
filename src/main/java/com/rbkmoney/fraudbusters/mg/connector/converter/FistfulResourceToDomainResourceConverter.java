@@ -1,7 +1,8 @@
 package com.rbkmoney.fraudbusters.mg.connector.converter;
 
 import com.rbkmoney.damsel.domain.BankCard;
-import com.rbkmoney.damsel.domain.BankCardPaymentSystem;
+import com.rbkmoney.damsel.domain.LegacyBankCardPaymentSystem;
+import com.rbkmoney.damsel.domain.PaymentSystemRef;
 import com.rbkmoney.damsel.domain.Residence;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
 import com.rbkmoney.damsel.fraudbusters.Resource;
@@ -15,7 +16,8 @@ import org.springframework.stereotype.Component;
 public class FistfulResourceToDomainResourceConverter
         implements Converter<com.rbkmoney.fistful.base.Resource, Resource> {
 
-    public static final BankCardPaymentSystem DEAFAULT_PAYMENT_SYSTEM = BankCardPaymentSystem.visa;
+    public static final PaymentSystemRef DEFAULT_PAYMENT_SYSTEM =
+            new PaymentSystemRef(LegacyBankCardPaymentSystem.visa.name());
     public static final String UNKNOWN = "UNKNOWN";
 
     @Override
@@ -45,8 +47,8 @@ public class FistfulResourceToDomainResourceConverter
                 ? Residence.valueOf(bankCardFrom.getIssuerCountry().name())
                 : null);
         bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem()
-                ? BankCardPaymentSystem.valueOf(bankCardFrom.getPaymentSystem().name())
-                : DEAFAULT_PAYMENT_SYSTEM);
+                ? new PaymentSystemRef(bankCardFrom.getPaymentSystem().name())
+                : DEFAULT_PAYMENT_SYSTEM);
         bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null
                 ? bankCardFrom.getMaskedPan()
                 : UNKNOWN);
