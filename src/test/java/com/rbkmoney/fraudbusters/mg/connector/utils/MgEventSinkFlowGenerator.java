@@ -415,7 +415,7 @@ public class MgEventSinkFlowGenerator {
         paymentTool.setBankCard(
                 new BankCard()
                         .setToken("477bba133c182267fe5f086924abdc5db71f77bfc27f01f2843f2cdc69d89f05")
-                        .setPaymentSystem(BankCardPaymentSystem.mastercard)
+                        .setPaymentSystem(new PaymentSystemRef(LegacyBankCardPaymentSystem.mastercard.name()))
                         .setBin(BIN)
                         .setLastDigits("4242")
                         .setIssuerCountry(Residence.RUS)
