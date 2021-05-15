@@ -13,6 +13,7 @@ import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
 import com.rbkmoney.geck.common.util.TBaseUtil;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
+import com.rbkmoney.mamsel.TokenProviderUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -103,6 +104,6 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     }
 
     public boolean isMobile(PaymentTool paymentTool) {
-        return paymentTool.isSetMobileCommerce();
+        return paymentTool.isSetBankCard() && TokenProviderUtil.isTokenProviderNameExist(paymentTool.getBankCard());
     }
 }
