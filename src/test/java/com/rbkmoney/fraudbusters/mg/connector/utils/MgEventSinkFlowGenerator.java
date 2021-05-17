@@ -418,7 +418,7 @@ public class MgEventSinkFlowGenerator {
                         .setPaymentSystem(new PaymentSystemRef(LegacyBankCardPaymentSystem.mastercard.name()))
                         .setBin(BIN)
                         .setLastDigits("4242")
-                        .setIssuerCountry(Residence.RUS)
+                        .setIssuerCountry(CountryCode.RUS)
         );
         return paymentTool;
     }

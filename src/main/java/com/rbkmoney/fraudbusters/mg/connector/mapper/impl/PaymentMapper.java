@@ -104,6 +104,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     }
 
     public boolean isMobile(PaymentTool paymentTool) {
-        return paymentTool.isSetBankCard() && TokenProviderUtil.isSetTokenProvider(paymentTool.getBankCard());
+        return paymentTool.isSetBankCard() && TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard()) != null;
     }
+
 }

@@ -3,7 +3,7 @@ package com.rbkmoney.fraudbusters.mg.connector.converter;
 import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.LegacyBankCardPaymentSystem;
 import com.rbkmoney.damsel.domain.PaymentSystemRef;
-import com.rbkmoney.damsel.domain.Residence;
+import com.rbkmoney.damsel.domain.CountryCode;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
 import com.rbkmoney.damsel.fraudbusters.Resource;
 import com.rbkmoney.fraudbusters.mg.connector.exception.UnknownResourceException;
@@ -44,7 +44,7 @@ public class FistfulResourceToDomainResourceConverter
         BankCard bankCard = new BankCard();
         bankCard.setToken(bankCardFrom.getToken());
         bankCard.setIssuerCountry(bankCardFrom.isSetIssuerCountry()
-                ? Residence.valueOf(bankCardFrom.getIssuerCountry().name())
+                ? CountryCode.valueOf(bankCardFrom.getIssuerCountry().name())
                 : null);
         bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem()
                 ? new PaymentSystemRef(bankCardFrom.getPaymentSystem().name())
