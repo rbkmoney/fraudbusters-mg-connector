@@ -1,6 +1,5 @@
 package com.rbkmoney.fraudbusters.mg.connector.mapper.impl;
 
-import com.rbkmoney.damsel.domain.BankCard;
 import com.rbkmoney.damsel.domain.Payer;
 import com.rbkmoney.damsel.domain.PaymentTool;
 import com.rbkmoney.damsel.fraudbusters.PayerType;
@@ -105,10 +104,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     }
 
     public boolean isMobile(PaymentTool paymentTool) {
-        return paymentTool.isSetBankCard() && isTokenProviderNameExist(paymentTool.getBankCard());
+        return paymentTool.isSetBankCard() && TokenProviderUtil.getTokenProviderName(paymentTool.getBankCard()) != null;
     }
 
-    private boolean isTokenProviderNameExist(BankCard bankCard) {
-        return TokenProviderUtil.getTokenProviderName(bankCard) != null;
-    }
 }
