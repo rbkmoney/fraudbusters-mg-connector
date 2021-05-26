@@ -81,7 +81,7 @@ public class MgEventSinkInvoiceToFraudStreamFactory implements EventSinkFactory 
                                     (id, change) -> refundPaymentMapper.accept(change.getChange())
                             );
 
-            branch[0].mapValues(mgEventWrapper ->
+            branch[0].flatMapValues(mgEventWrapper ->
                     retryTemplate.execute(args ->
                             paymentMapper.map(mgEventWrapper.getChange(), mgEventWrapper.getEvent())))
                     .to(paymentTopic, Produced.with(Serdes.String(), paymentSerde));

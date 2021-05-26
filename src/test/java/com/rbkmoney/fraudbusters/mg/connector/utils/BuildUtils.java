@@ -2,6 +2,9 @@ package com.rbkmoney.fraudbusters.mg.connector.utils;
 
 import com.rbkmoney.damsel.base.Content;
 import com.rbkmoney.damsel.domain.*;
+import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
+import com.rbkmoney.damsel.fraudbusters.Payment;
+import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChargeback;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
@@ -79,7 +82,8 @@ public class BuildUtils {
                         .setPayment(buildPayment(partyId, shopId, paymentId, paymentStatus, thriftBaseProcessor))
                         .setRefunds(buildRefunds(refundId, thriftBaseProcessor))
                         .setChargebacks(List.of(buildChargeback(chargebackId, thriftBaseProcessor)))
-                        .setCashFlow(createCashFlow(1000L, 300L))
+                        //TODO: return before merge JD-309
+                        //.setCashFlow(createCashFlow(1000L, 300L))
                         .setSessions(Collections.emptyList()));
     }
 
@@ -332,7 +336,8 @@ public class BuildUtils {
                 new com.rbkmoney.damsel.payment_processing.InvoicePaymentRefund(
                         buildRefund(refundId, thriftBaseProcessor),
                         Collections.singletonList(new InvoiceRefundSession().setTransactionInfo(getTransactionInfo())));
-        invoicePaymentRefund.setCashFlow(createCashFlow(123L, 100L));
+        //TODO: return before merge JD-309
+        //invoicePaymentRefund.setCashFlow(createCashFlow(123L, 100L));
 
         return Collections.singletonList(invoicePaymentRefund);
     }
@@ -363,7 +368,9 @@ public class BuildUtils {
                         .setStage(
                                 InvoicePaymentChargebackStage.chargeback(new InvoicePaymentChargebackStageChargeback()))
                         .setStatus(InvoicePaymentChargebackStatus.pending(new InvoicePaymentChargebackPending()))
-                ).setCashFlow(createCashFlow(23L, 100L));
+                );
+        //TODO: return before merge JD-309
+        //.setCashFlow(createCashFlow(23L, 100L));
     }
 
     private static TransactionInfo getTransactionInfo() {
@@ -376,5 +383,40 @@ public class BuildUtils {
     private static AdditionalTransactionInfo getAdditionalInfo() {
         return new AdditionalTransactionInfo()
                 .setRrn("chicken-teriyaki");
+    }
+
+    public static Payment createTestPayment(String id,
+                                            Cash cost,
+                                            String partyId,
+                                            String shopId) {
+        Payment payment = new Payment();
+        payment.setId(id);
+        payment.setCost(cost);
+        payment.setReferenceInfo(ReferenceInfo.merchant_info(new MerchantInfo()
+                .setPartyId(partyId)
+                .setShopId(shopId)
+        ));
+        return payment;
+    }
+
+    public static AllocationTransaction createTestAllocationTransaction(String id,
+                                                                        Cash amount,
+                                                                        String partyId,
+                                                                        String shopId) {
+        return new AllocationTransaction()
+                .setId(id)
+                .setAmount(amount)
+                .setTarget(createTestAllocationTransactionTarget(partyId, shopId));
+    }
+
+    private static AllocationTransactionTarget createTestAllocationTransactionTarget(String partyId,
+                                                                                     String shopId) {
+        AllocationTransactionTarget target = new AllocationTransactionTarget();
+        target.setShop(
+                new AllocationTransactionTargetShop()
+                        .setOwnerId(partyId)
+                        .setShopId(shopId)
+        );
+        return target;
     }
 }

@@ -18,13 +18,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
+import static com.rbkmoney.fraudbusters.mg.connector.utils.PaymentMapperUtils.mapAllocationTransactionToPayment;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Payment> {
+public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, List<Payment>> {
 
     private final HgClientService hgClientService;
     private final InfoInitializer<InvoicePaymentStatusChanged> generalInfoInitiator;
@@ -41,7 +46,7 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     }
 
     @Override
-    public Payment map(InvoiceChange change, MachineEvent event) {
+    public List<Payment> map(InvoiceChange change, MachineEvent event) {
         String paymentId = change.getInvoicePaymentChange().getId();
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         InvoicePaymentChangePayload payload = invoicePaymentChange.getPayload();
@@ -54,16 +59,20 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
 
         Payer payer = invoicePayment.getPayment().getPayer();
         PaymentTool paymentTool = generalInfoInitiator.initPaymentTool(payer);
-        Payment payment = initPayment(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
+        List<Payment> payments =
+                initPayment(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
 
-        log.debug("Map payment: {}", payment);
-        return payment;
+        log.debug("Map payments: {}", payments);
+        return payments;
     }
 
-    private Payment initPayment(MachineEvent event, InvoicePaymentStatusChanged invoicePaymentStatusChanged,
-                                com.rbkmoney.damsel.domain.Invoice invoice, InvoicePayment invoicePayment, Payer payer,
+    private List<Payment> initPayment(MachineEvent event,
+                                InvoicePaymentStatusChanged invoicePaymentStatusChanged,
+                                com.rbkmoney.damsel.domain.Invoice invoice,
+                                InvoicePayment invoicePayment,
+                                Payer payer,
                                 PaymentTool paymentTool) {
-        return new Payment()
+        Payment sourcePayment = new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
@@ -76,6 +85,15 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
                 .setMobile(isMobile(paymentTool))
                 .setRecurrent(isRecurrent(payer))
                 .setError(generalInfoInitiator.initError(invoicePaymentStatusChanged));
+
+        if (invoicePayment.isSetAllocaton()) {
+            List<Payment> allocaredPayments = invoicePayment.getAllocaton().getTransactions().stream()
+                    .map(trx -> mapAllocationTransactionToPayment(sourcePayment, trx))
+                    .collect(Collectors.toList());
+            allocaredPayments.add(sourcePayment);
+            return allocaredPayments;
+        }
+        return Arrays.asList(sourcePayment);
     }
 
     @Override

@@ -22,7 +22,6 @@ public class HgConfig {
                 .withAddress(resource.getURI()).build(InvoicingSrv.Iface.class);
     }
 
-
     @Bean
     public ManagementSrv.Iface withdrawalClient(
             @Value("${service.withdrawal.url}") Resource resource,
