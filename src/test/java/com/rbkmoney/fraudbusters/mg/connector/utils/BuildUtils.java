@@ -5,6 +5,7 @@ import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.fraudbusters.MerchantInfo;
 import com.rbkmoney.damsel.fraudbusters.Payment;
 import com.rbkmoney.damsel.fraudbusters.ReferenceInfo;
+import com.rbkmoney.damsel.fraudbusters.Refund;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChargeback;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
@@ -397,6 +398,20 @@ public class BuildUtils {
                 .setShopId(shopId)
         ));
         return payment;
+    }
+
+    public static Refund createTestRefund(String id,
+                                          Cash cost,
+                                          String partyId,
+                                          String shopId) {
+        Refund refund = new Refund();
+        refund.setId(id);
+        refund.setCost(cost);
+        refund.setReferenceInfo(ReferenceInfo.merchant_info(new MerchantInfo()
+                .setPartyId(partyId)
+                .setShopId(shopId)
+        ));
+        return refund;
     }
 
     public static AllocationTransaction createTestAllocationTransaction(String id,

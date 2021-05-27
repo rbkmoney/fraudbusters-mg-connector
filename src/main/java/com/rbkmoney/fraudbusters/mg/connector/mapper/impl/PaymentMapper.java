@@ -60,18 +60,18 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, List<P
         Payer payer = invoicePayment.getPayment().getPayer();
         PaymentTool paymentTool = generalInfoInitiator.initPaymentTool(payer);
         List<Payment> payments =
-                initPayment(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
+                initPayments(event, invoicePaymentStatusChanged, invoice, invoicePayment, payer, paymentTool);
 
         log.debug("Map payments: {}", payments);
         return payments;
     }
 
-    private List<Payment> initPayment(MachineEvent event,
-                                InvoicePaymentStatusChanged invoicePaymentStatusChanged,
-                                com.rbkmoney.damsel.domain.Invoice invoice,
-                                InvoicePayment invoicePayment,
-                                Payer payer,
-                                PaymentTool paymentTool) {
+    private List<Payment> initPayments(MachineEvent event,
+                                       InvoicePaymentStatusChanged invoicePaymentStatusChanged,
+                                       com.rbkmoney.damsel.domain.Invoice invoice,
+                                       InvoicePayment invoicePayment,
+                                       Payer payer,
+                                       PaymentTool paymentTool) {
         Payment sourcePayment = new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
                 .setCost(invoicePayment.getPayment().getCost())

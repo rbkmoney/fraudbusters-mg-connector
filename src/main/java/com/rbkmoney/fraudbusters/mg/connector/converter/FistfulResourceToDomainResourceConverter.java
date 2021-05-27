@@ -34,7 +34,7 @@ public class FistfulResourceToDomainResourceConverter
             resource.setCryptoWallet(cryptoWallet);
         } else {
             log.error("Unknown resource type: {}", fistfulResource);
-            throw new UnknownResourceException();
+            throw new UnknownResourceException(String.format("Unknown resource type: %s", fistfulResource));
         }
         log.debug("Finish convert fistfulResource : {} to domainResource: {}", fistfulResource, resource);
         return resource;

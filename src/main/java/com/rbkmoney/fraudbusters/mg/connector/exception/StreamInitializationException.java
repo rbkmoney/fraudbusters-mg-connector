@@ -1,8 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.exception;
 
 public class StreamInitializationException extends RuntimeException {
-    public StreamInitializationException() {
-    }
 
     public StreamInitializationException(String message) {
         super(message);

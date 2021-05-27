@@ -1,8 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.exception;
 
 public class UnknownResourceException extends RuntimeException {
-    public UnknownResourceException() {
-    }
 
     public UnknownResourceException(String message) {
         super(message);
