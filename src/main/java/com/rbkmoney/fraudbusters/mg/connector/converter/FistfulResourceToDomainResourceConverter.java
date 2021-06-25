@@ -47,7 +47,7 @@ public class FistfulResourceToDomainResourceConverter
                 ? CountryCode.valueOf(bankCardFrom.getIssuerCountry().name())
                 : null);
         bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem()
-                ? new PaymentSystemRef(bankCardFrom.getPaymentSystem().name())
+                ? new PaymentSystemRef(bankCardFrom.getPaymentSystem())
                 : DEFAULT_PAYMENT_SYSTEM);
         bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null
                 ? bankCardFrom.getMaskedPan()
