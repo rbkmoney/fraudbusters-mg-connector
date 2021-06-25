@@ -1,8 +1,6 @@
 package com.rbkmoney.fraudbusters.mg.connector.exception;
 
 public class PaymentInfoRequestException extends RuntimeException {
-    public PaymentInfoRequestException() {
-    }
 
     public PaymentInfoRequestException(String message) {
         super(message);

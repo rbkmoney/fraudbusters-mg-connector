@@ -117,7 +117,7 @@ public class MgEventSinkFlowGenerator {
                                         .setStatus(
                                                 InvoicePaymentRefundStatus.pending(new InvoicePaymentRefundPending()))
                                 )
-                                .setCashFlow(new ArrayList<>())
+                                //.setCashFlow(new ArrayList<>())
                         )
                 );
 
@@ -418,7 +418,8 @@ public class MgEventSinkFlowGenerator {
                         .setPaymentSystem(new PaymentSystemRef(LegacyBankCardPaymentSystem.mastercard.name()))
                         .setBin(BIN)
                         .setLastDigits("4242")
-                        .setIssuerCountry(CountryCode.RUS)
+                        //TODO: return before merge JD-309
+                        //.setIssuerCountry(CountryCode.RUS)
         );
         return paymentTool;
     }

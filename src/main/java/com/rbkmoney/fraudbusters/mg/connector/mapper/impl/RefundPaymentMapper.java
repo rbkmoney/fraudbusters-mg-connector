@@ -7,6 +7,7 @@ import com.rbkmoney.damsel.fraudbusters.RefundStatus;
 import com.rbkmoney.damsel.payment_processing.*;
 import com.rbkmoney.fraudbusters.mg.connector.constant.InvoiceEventType;
 import com.rbkmoney.fraudbusters.mg.connector.domain.InvoicePaymentWrapper;
+import com.rbkmoney.fraudbusters.mg.connector.exception.NotFoundException;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.Mapper;
 import com.rbkmoney.fraudbusters.mg.connector.mapper.initializer.InfoInitializer;
 import com.rbkmoney.fraudbusters.mg.connector.service.HgClientService;
@@ -16,13 +17,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
+import static com.rbkmoney.fraudbusters.mg.connector.utils.PaymentMapperUtils.mapAllocationTransactionToRefund;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, Refund> {
+public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, List<Refund>> {
 
     private final HgClientService hgClientService;
     private final InfoInitializer<InvoicePaymentRefundStatusChanged> generalInfoInitiator;
@@ -37,43 +43,73 @@ public class RefundPaymentMapper implements Mapper<InvoiceChange, MachineEvent, 
     }
 
     @Override
-    public Refund map(InvoiceChange change, MachineEvent event) {
+    public List<Refund> map(InvoiceChange change, MachineEvent event) {
         log.debug("RefundPaymentMapper change: {} event: {}", change, event);
 
         InvoicePaymentChange invoicePaymentChange = change.getInvoicePaymentChange();
         String paymentId = invoicePaymentChange.getId();
         InvoicePaymentRefundChange invoicePaymentRefundChange =
                 invoicePaymentChange.getPayload().getInvoicePaymentRefundChange();
-        InvoicePaymentRefundChangePayload payload = invoicePaymentRefundChange.getPayload();
-        InvoicePaymentRefundStatusChanged invoicePaymentRefundStatusChanged =
-                payload.getInvoicePaymentRefundStatusChanged();
         String refundId = invoicePaymentRefundChange.getId();
 
-        InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(event.getSourceId(), findPayment(),
-                paymentId, refundId, event.getEventId());
+        InvoicePaymentWrapper invoicePaymentWrapper = hgClientService.getInvoiceInfo(
+                event.getSourceId(), findPayment(), paymentId, refundId, event.getEventId()
+        );
+        com.rbkmoney.damsel.domain.Invoice invoice = invoicePaymentWrapper.getInvoice();
+        String fullPaymentId = String.join(DELIMITER, invoice.getId(), paymentId);
 
-        var invoice = invoicePaymentWrapper.getInvoice();
+        InvoicePaymentRefund invoicePaymentRefund = invoicePaymentWrapper.getInvoicePayment().getRefunds().stream()
+                .filter(invRefund -> refundId.equals(invRefund.getRefund().getId()))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(String.format("Refund with id %s for invoice %s not found!",
+                        refundId, fullPaymentId)));
+
+        return initRefunds(
+                event,
+                invoicePaymentWrapper,
+                invoicePaymentRefund,
+                invoicePaymentRefundChange.getPayload(),
+                invoice,
+                fullPaymentId,
+                invoicePaymentRefundChange.getId()
+        );
+    }
+
+    private List<Refund> initRefunds(MachineEvent event,
+                                     InvoicePaymentWrapper invoicePaymentWrapper,
+                                     InvoicePaymentRefund invoicePaymentRefund,
+                                     InvoicePaymentRefundChangePayload payload,
+                                     com.rbkmoney.damsel.domain.Invoice invoice,
+                                     String fullPaymentId,
+                                     String refundId) {
         var invoicePayment = invoicePaymentWrapper.getInvoicePayment();
-
+        var paymentRefund = invoicePaymentRefund.getRefund();
         Payer payer = invoicePayment.getPayment().getPayer();
-
-        Refund refund = new Refund()
+        Refund sourceRefund = new Refund()
                 .setStatus(TBaseUtil.unionFieldToEnum(payload.getInvoicePaymentRefundStatusChanged().getStatus(),
                         RefundStatus.class))
-                .setCost(invoicePayment.getPayment().getCost())
+                .setCost(paymentRefund.getCash())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(generalInfoInitiator.initPaymentTool(payer))
-                .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId(),
-                        invoicePaymentRefundChange.getId()))
-                .setPaymentId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
+                .setId(String.join(DELIMITER, fullPaymentId, refundId))
+                .setPaymentId(fullPaymentId)
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
                 .setPayerType(TBaseUtil.unionFieldToEnum(payer, PayerType.class))
-                .setError(generalInfoInitiator.initError(invoicePaymentRefundStatusChanged));
+                .setError(generalInfoInitiator.initError(payload.getInvoicePaymentRefundStatusChanged()));
 
-        log.debug("RefundPaymentMapper refund: {}", refund);
-        return refund;
+        if (paymentRefund.isSetAllocation()) {
+            List<Refund> refunds = paymentRefund.getAllocation().getTransactions().stream()
+                    .map(allocTrx -> mapAllocationTransactionToRefund(sourceRefund, allocTrx))
+                    .collect(Collectors.toList());
+            refunds.add(sourceRefund);
+            log.debug("RefundPaymentMapper returns refunds with allocation transactions: {}", refunds);
+            return refunds;
+        } else {
+            log.debug("RefundPaymentMapper returns refund: {}", sourceRefund);
+            return Arrays.asList(sourceRefund);
+        }
     }
 
     private BiFunction<String, Invoice, Optional<InvoicePayment>> findPayment() {
