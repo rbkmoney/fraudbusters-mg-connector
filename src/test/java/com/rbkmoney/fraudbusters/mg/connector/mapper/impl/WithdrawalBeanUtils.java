@@ -23,7 +23,7 @@ public class WithdrawalBeanUtils {
                         .setBin("bin")
                         .setCategory("category")
                         .setIssuerCountry(Residence.PAN)
-                        .setPaymentSystem(BankCardPaymentSystem.mastercard)
+                        .setPaymentSystem(LegacyBankCardPaymentSystem.mastercard.name())
                         .setToken("cardToken")
                         .setMaskedPan("1232132")
                         .setCardType(CardType.debit)
