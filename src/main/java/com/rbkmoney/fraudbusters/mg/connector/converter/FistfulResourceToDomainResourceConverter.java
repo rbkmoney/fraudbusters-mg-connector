@@ -7,6 +7,7 @@ import com.rbkmoney.damsel.domain.CountryCode;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
 import com.rbkmoney.damsel.fraudbusters.Resource;
 import com.rbkmoney.fraudbusters.mg.connector.exception.UnknownResourceException;
+import com.rbkmoney.mamsel.PaymentSystemUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
@@ -47,7 +48,7 @@ public class FistfulResourceToDomainResourceConverter
                 ? CountryCode.valueOf(bankCardFrom.getIssuerCountry().name())
                 : null);
         bankCard.setPaymentSystem(bankCardFrom.isSetPaymentSystem()
-                ? new PaymentSystemRef(bankCardFrom.getPaymentSystem())
+                ? new PaymentSystemRef(PaymentSystemUtil.getFistfulPaymentSystemName(bankCardFrom))
                 : DEFAULT_PAYMENT_SYSTEM);
         bankCard.setLastDigits(bankCardFrom.getMaskedPan() != null
                 ? bankCardFrom.getMaskedPan()

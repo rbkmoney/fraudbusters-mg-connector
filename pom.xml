@@ -26,7 +26,7 @@
 
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
         <fraudbusters-proto.version>1.67-fa4d6ec</fraudbusters-proto.version>
-        <fistful-proto.version>1.120-e1bd6fc</fistful-proto.version>
+        <fistful-proto.version>1.122-54ee04e</fistful-proto.version>
     </properties>
 
     <dependencies>
@@ -58,6 +58,7 @@
         <dependency>
             <groupId>com.rbkmoney</groupId>
             <artifactId>mamsel</artifactId>
+            <version>0.1.2</version>
         </dependency>
         <dependency>
             <groupId>com.rbkmoney</groupId>
