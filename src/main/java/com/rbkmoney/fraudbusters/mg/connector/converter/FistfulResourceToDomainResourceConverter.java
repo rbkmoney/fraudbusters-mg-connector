@@ -1,10 +1,11 @@
 package com.rbkmoney.fraudbusters.mg.connector.converter;
 
 import com.rbkmoney.damsel.domain.BankCard;
+import com.rbkmoney.damsel.domain.CountryCode;
 import com.rbkmoney.damsel.domain.LegacyBankCardPaymentSystem;
 import com.rbkmoney.damsel.domain.PaymentSystemRef;
-import com.rbkmoney.damsel.domain.CountryCode;
 import com.rbkmoney.damsel.fraudbusters.CryptoWallet;
+import com.rbkmoney.damsel.fraudbusters.DigitalWallet;
 import com.rbkmoney.damsel.fraudbusters.Resource;
 import com.rbkmoney.fraudbusters.mg.connector.exception.UnknownResourceException;
 import com.rbkmoney.mamsel.PaymentSystemUtil;
@@ -33,6 +34,14 @@ public class FistfulResourceToDomainResourceConverter
                     .setId(fistfulResource.getCryptoWallet().getCryptoWallet().getId())
                     .setCurrency(fistfulResource.getCryptoWallet().getCryptoWallet().getCurrency().name());
             resource.setCryptoWallet(cryptoWallet);
+        } else if (fistfulResource.isSetDigitalWallet()) {
+            DigitalWallet digitalWallet = new DigitalWallet()
+                    .setId(fistfulResource.getDigitalWallet().getDigitalWallet().getId());
+            if (fistfulResource.getDigitalWallet().getDigitalWallet().getData() != null) {
+                digitalWallet.setDigitalDataProvider(fistfulResource.getDigitalWallet()
+                        .getDigitalWallet().getData().getSetField().getFieldName());
+            }
+            resource.setDigitalWallet(digitalWallet);
         } else {
             log.error("Unknown resource type: {}", fistfulResource);
             throw new UnknownResourceException();
