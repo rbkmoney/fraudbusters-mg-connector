@@ -5,10 +5,15 @@ import com.rbkmoney.damsel.domain.*;
 import com.rbkmoney.damsel.payment_processing.InvoicePayment;
 import com.rbkmoney.damsel.payment_processing.InvoicePaymentChargeback;
 import com.rbkmoney.damsel.payment_processing.InvoiceRefundSession;
+import com.rbkmoney.fistful.base.CardType;
+import com.rbkmoney.fistful.base.DigitalData;
+import com.rbkmoney.fistful.base.DigitalDataWebmoney;
+import com.rbkmoney.fistful.base.Residence;
 import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.geck.serializer.kit.mock.MockMode;
 import com.rbkmoney.geck.serializer.kit.mock.MockTBaseProcessor;
 import com.rbkmoney.geck.serializer.kit.tbase.TBaseHandler;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -21,6 +26,34 @@ import java.util.UUID;
 import static com.rbkmoney.fraudbusters.mg.connector.utils.MgEventSinkFlowGenerator.createCash;
 
 public class BuildUtils {
+
+    public static com.rbkmoney.fistful.base.BankCard buildFistfulBankCard() {
+        return new com.rbkmoney.fistful.base.BankCard()
+                .setBankName(InvoiceTestConstant.BANK_NAME)
+                .setBin(InvoiceTestConstant.CARD_BIN)
+                .setCategory(InvoiceTestConstant.CARD_CATEGORY)
+                .setIssuerCountry(Residence.PAN)
+                .setPaymentSystem(new com.rbkmoney.fistful.base.PaymentSystemRef(
+                        com.rbkmoney.fistful.base.LegacyBankCardPaymentSystem.mastercard.name()))
+                .setToken(InvoiceTestConstant.CARD_TOKEN_PROVIDER)
+                .setMaskedPan(InvoiceTestConstant.CARD_MASKED_PAN)
+                .setCardType(CardType.debit)
+                .setCardholderName(InvoiceTestConstant.CARDHOLDER_NAME);
+    }
+
+    public static com.rbkmoney.fistful.base.CryptoWallet buildFistfulCryptoWallet() {
+        com.rbkmoney.fistful.base.CryptoWallet cryptoWallet = new com.rbkmoney.fistful.base.CryptoWallet();
+        cryptoWallet.setId("id");
+        cryptoWallet.setCurrency(com.rbkmoney.fistful.base.CryptoCurrency.bitcoin);
+        return cryptoWallet;
+    }
+
+    public static com.rbkmoney.fistful.base.DigitalWallet buildFistfulDigitalWallet() {
+        com.rbkmoney.fistful.base.DigitalWallet digitalWallet = new com.rbkmoney.fistful.base.DigitalWallet();
+        digitalWallet.setId("id");
+        digitalWallet.setData(DigitalData.webmoney(new DigitalDataWebmoney()));
+        return digitalWallet;
+    }
 
     public static com.rbkmoney.damsel.payment_processing.Invoice buildInvoice(
             String partyId,
