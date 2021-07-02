@@ -60,10 +60,9 @@ class FistfulResourceToDomainResourceConverterTest {
 
     @Test
     void convertUnknownResourceExceptionTest() {
-        Exception exception = assertThrows(UnknownResourceException.class, () -> {
+        assertThrows(UnknownResourceException.class, () -> {
             converter.convert(new com.rbkmoney.fistful.base.Resource());
         });
-        assertNotNull(exception);
     }
 
 }
