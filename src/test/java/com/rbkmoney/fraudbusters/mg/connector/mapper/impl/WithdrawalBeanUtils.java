@@ -8,6 +8,7 @@ import com.rbkmoney.fistful.withdrawal.Change;
 import com.rbkmoney.fistful.withdrawal.StatusChange;
 import com.rbkmoney.fistful.withdrawal.TimestampedChange;
 import com.rbkmoney.fistful.withdrawal.status.Status;
+import com.rbkmoney.fraudbusters.mg.connector.utils.InvoiceTestConstant;
 
 public class WithdrawalBeanUtils {
 
@@ -19,18 +20,17 @@ public class WithdrawalBeanUtils {
         final Resource resource = new Resource();
         resource.setBankCard(new ResourceBankCard()
                 .setBankCard(new BankCard()
-                        .setBankName("bankName")
-                        .setBin("bin")
-                        .setCategory("category")
+                        .setBankName(InvoiceTestConstant.BANK_NAME)
+                        .setBin(InvoiceTestConstant.CARD_BIN)
+                        .setCategory(InvoiceTestConstant.CARD_CATEGORY)
                         .setIssuerCountry(Residence.PAN)
-                        .setPaymentSystem(LegacyBankCardPaymentSystem.mastercard.name())
-                        .setToken("cardToken")
-                        .setMaskedPan("1232132")
+                        .setPaymentSystem(new PaymentSystemRef(LegacyBankCardPaymentSystem.mastercard.name()))
+                        .setToken(InvoiceTestConstant.CARD_TOKEN_PROVIDER)
+                        .setMaskedPan(InvoiceTestConstant.CARD_MASKED_PAN)
                         .setCardType(CardType.debit)
-                        .setCardholderName("CARD HOLDER")));
+                        .setCardholderName(InvoiceTestConstant.CARDHOLDER_NAME)));
         return new DestinationState().setResource(resource);
     }
-
 
     public static TimestampedChange createStatusCahnge(Status failed) {
         final Change change = new Change();
