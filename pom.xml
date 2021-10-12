@@ -25,7 +25,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <machinegun-proto.version>1.18-d814d69</machinegun-proto.version>
-        <fraudbusters-proto.version>1.69-4410f83</fraudbusters-proto.version>
+        <fraudbusters-proto.version>1.96-81934f5</fraudbusters-proto.version>
         <fistful-proto.version>1.128-d331fce</fistful-proto.version>
     </properties>
 
