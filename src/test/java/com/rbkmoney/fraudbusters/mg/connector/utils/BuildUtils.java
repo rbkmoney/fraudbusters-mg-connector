@@ -13,7 +13,6 @@ import com.rbkmoney.geck.common.util.TypeUtil;
 import com.rbkmoney.geck.serializer.kit.mock.MockMode;
 import com.rbkmoney.geck.serializer.kit.mock.MockTBaseProcessor;
 import com.rbkmoney.geck.serializer.kit.tbase.TBaseHandler;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

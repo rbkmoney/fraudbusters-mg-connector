@@ -19,13 +19,13 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.config.SslConfigs;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.thrift.TException;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,8 +40,8 @@ import static org.mockito.ArgumentMatchers.any;
 //Test for real big data set
 //Need get truststore pcsng-kafka by devops
 @Slf4j
-@Ignore
-@RunWith(SpringRunner.class)
+@Disabled
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(classes = FraudbustersMgConnectorApplication.class)
 public class IntegrationTest extends KafkaAbstractTest {
 
