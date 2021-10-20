@@ -17,12 +17,12 @@ import com.rbkmoney.fraudbusters.mg.connector.service.WalletClientService;
 import com.rbkmoney.fraudbusters.mg.connector.service.WithdrawalClientService;
 import com.rbkmoney.machinegun.eventsink.MachineEvent;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import static com.rbkmoney.fraudbusters.mg.connector.mapper.impl.WithdrawalBeanUtils.*;
 import static org.junit.Assert.*;
@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {FistfulAccountToDomainAccountConverter.class,
         FistfulCashToDomainCashConverter.class,
         FistfulCurrencyToDomainCurrencyConverter.class,
