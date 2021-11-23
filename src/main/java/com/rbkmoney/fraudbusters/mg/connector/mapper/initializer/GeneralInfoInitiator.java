@@ -47,13 +47,14 @@ public class GeneralInfoInitiator implements InfoInitializer<InvoicePaymentStatu
                 clientInfo.setFingerprint(clientInfoRes.getFingerprint());
             }
         }
-        initEmail(clientInfo, payer);
+        initContactInfo(clientInfo, payer);
         return clientInfo;
     }
 
-    public void initEmail(ClientInfo clientInfo, Payer payer) {
+    public void initContactInfo(ClientInfo clientInfo, Payer payer) {
         if (payer.isSetPaymentResource() && payer.getPaymentResource().isSetContactInfo()) {
             clientInfo.setEmail(payer.getPaymentResource().getContactInfo().getEmail());
+            clientInfo.setPhone(payer.getPaymentResource().getContactInfo().getPhoneNumber());
         }
     }
 

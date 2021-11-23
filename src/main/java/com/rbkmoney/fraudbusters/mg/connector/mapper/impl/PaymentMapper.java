@@ -63,12 +63,13 @@ public class PaymentMapper implements Mapper<InvoiceChange, MachineEvent, Paymen
     private Payment initPayment(MachineEvent event, InvoicePaymentStatusChanged invoicePaymentStatusChanged,
                                 com.rbkmoney.damsel.domain.Invoice invoice, InvoicePayment invoicePayment, Payer payer,
                                 PaymentTool paymentTool) {
+        var payment = invoicePayment.getPayment();
         return new Payment()
                 .setStatus(TBaseUtil.unionFieldToEnum(invoicePaymentStatusChanged.getStatus(), PaymentStatus.class))
-                .setCost(invoicePayment.getPayment().getCost())
+                .setCost(payment.getCost())
                 .setReferenceInfo(generalInfoInitiator.initReferenceInfo(invoice))
                 .setPaymentTool(paymentTool)
-                .setId(String.join(DELIMITER, invoice.getId(), invoicePayment.getPayment().getId()))
+                .setId(String.join(DELIMITER, invoice.getId(), payment.getId()))
                 .setEventTime(event.getCreatedAt())
                 .setClientInfo(generalInfoInitiator.initClientInfo(payer))
                 .setProviderInfo(generalInfoInitiator.initProviderInfo(invoicePayment))
